@@ -8,9 +8,11 @@ export const revalidate = 300;
 export default async function HomePage() {
   const all = await getAllArticles();
   if (!all.length) return (
-    <div style={{textAlign:"center",padding:"120px 24px",fontFamily:"var(--serif)",color:"var(--muted)"}}>
-      <p style={{fontSize:28,fontWeight:700}}>Henüz makale yok</p>
-      <p style={{fontSize:14,marginTop:8,fontFamily:"var(--sans)"}}>Panelden makale ürettikten sonra burada görünecek.</p>
+    <div style={{textAlign:"center",padding:"140px 28px"}}>
+      <p style={{fontFamily:"var(--display)",fontSize:32,fontWeight:700,color:"var(--ink)",marginBottom:12}}>Henüz makale yok</p>
+      <p style={{fontSize:15,color:"var(--muted)",fontFamily:"var(--sans)"}}>
+        Admin panelinden makale ürettikten sonra burada görünecek.
+      </p>
     </div>
   );
 
@@ -24,23 +26,23 @@ export default async function HomePage() {
   })).filter(g=>g.items.length>=2);
 
   return (
-    <div style={{maxWidth:1280,margin:"0 auto",padding:"0 24px 80px"}}>
+    <div style={{maxWidth:1320,margin:"0 auto",padding:"0 28px 80px"}}>
 
-      {/* HERO + SIDEBAR */}
       <div className="home-hero-grid">
-        <div style={{borderRight:"1px solid var(--rule)"}}>
+        <div>
           <HeroCard article={hero}/>
-          <div className="sub-strip" style={{borderTop:"1px solid var(--rule)"}}>
+          <div className="sub-strip">
             {strip.map(a=><StripCard key={a.filename} article={a}/>)}
           </div>
         </div>
-        <div className="ranked-box">
-          <div className="ranked-head">Öne Çıkanlar</div>
-          {ranked.map((a,i)=><RankedCard key={a.filename} article={a} index={i}/>)}
-        </div>
+        {ranked.length > 0 && (
+          <div className="ranked-box">
+            <div className="ranked-head">Öne Çıkanlar</div>
+            {ranked.map((a,i)=><RankedCard key={a.filename} article={a} index={i}/>)}
+          </div>
+        )}
       </div>
 
-      {/* SON HABERLER */}
       {recent.length>0&&(
         <section>
           <div className="sec-rule">
@@ -53,12 +55,10 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* NEWSLETTER */}
-      <section style={{margin:"40px 0"}}>
+      <section style={{margin:"48px 0"}}>
         <Newsletter />
       </section>
 
-      {/* KATEGORİ BÖLÜMLER */}
       {byCat.map(({cat,cfg,items})=>(
         <section key={cat}>
           <div className="sec-rule">

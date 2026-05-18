@@ -8,21 +8,21 @@ export default function BreakingNews() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    fetch("/api/breaking-news").then(r => r.json()).then(d => { if (d) setItem(d); });
+    fetch("/api/breaking-news").then(r => r.json()).then(d => { if (d) setItem(d); }).catch(() => {});
   }, []);
 
   if (!item || dismissed) return null;
 
   return (
     <div style={{
-      background: "#b91c1c", color: "#fff", padding: "8px 24px",
+      background: "#dc2626", color: "#fff", padding: "8px 28px",
       display: "flex", alignItems: "center", gap: 12, fontSize: 13,
-      fontFamily: "var(--sans)", fontWeight: 500, position: "relative",
+      fontFamily: "var(--sans)", fontWeight: 500,
     }}>
       <span style={{
-        fontFamily: "var(--mono)", fontSize: 9, fontWeight: 700,
-        background: "#fff", color: "#b91c1c", padding: "2px 6px",
-        borderRadius: 2, letterSpacing: ".1em", flexShrink: 0,
+        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
+        background: "rgba(255,255,255,.15)", color: "#fff", padding: "3px 8px",
+        borderRadius: 3, letterSpacing: ".08em", flexShrink: 0,
       }}>
         SON DAKİKA
       </span>
@@ -32,7 +32,7 @@ export default function BreakingNews() {
         <span style={{ flex: 1 }}>{item.text}</span>
       )}
       <button onClick={() => setDismissed(true)}
-        style={{ background: "none", border: "none", color: "#fff9", cursor: "pointer", fontSize: 16, padding: "0 4px" }}>
+        style={{ background: "none", border: "none", color: "rgba(255,255,255,.6)", cursor: "pointer", fontSize: 18, padding: "0 4px" }}>
         ×
       </button>
     </div>

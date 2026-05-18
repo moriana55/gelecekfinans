@@ -15,12 +15,8 @@ export default function Newsletter() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      if (res.ok) {
-        setStatus("success");
-        setEmail("");
-      } else {
-        setStatus("error");
-      }
+      setStatus(res.ok ? "success" : "error");
+      if (res.ok) setEmail("");
     } catch {
       setStatus("error");
     }
@@ -28,19 +24,30 @@ export default function Newsletter() {
 
   if (status === "success") {
     return (
-      <div style={{ background: "var(--ink)", padding: "32px 24px", borderRadius: 6, textAlign: "center" }}>
-        <p style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, color: "#fff" }}>Teşekkürler!</p>
-        <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "#888", marginTop: 8 }}>Günlük bültenimize kaydoldunuz.</p>
+      <div style={{
+        background: "var(--surface)",
+        border: "1px solid var(--border2)",
+        padding: "40px 32px",
+        borderRadius: "var(--radius)",
+        textAlign: "center",
+      }}>
+        <p style={{ fontFamily: "var(--display)", fontSize: 20, fontWeight: 600, color: "var(--accent)" }}>Teşekkürler!</p>
+        <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--muted)", marginTop: 8 }}>Günlük bültenimize kaydoldunuz.</p>
       </div>
     );
   }
 
   return (
-    <div style={{ background: "var(--ink)", padding: "32px 24px", borderRadius: 6 }}>
-      <p style={{ fontFamily: "var(--serif)", fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 4 }}>
+    <div style={{
+      background: "var(--surface)",
+      border: "1px solid var(--border2)",
+      padding: "40px 32px",
+      borderRadius: "var(--radius)",
+    }}>
+      <p style={{ fontFamily: "var(--display)", fontSize: 20, fontWeight: 600, color: "var(--ink)", marginBottom: 6 }}>
         Günlük Finans Bülteni
       </p>
-      <p style={{ fontFamily: "var(--sans)", fontSize: 13, color: "#888", marginBottom: 16 }}>
+      <p style={{ fontFamily: "var(--sans)", fontSize: 14, color: "var(--muted)", marginBottom: 20 }}>
         Her sabah piyasa özeti ve öne çıkan haberler e-postanızda.
       </p>
       <form onSubmit={subscribe} style={{ display: "flex", gap: 8 }}>
@@ -48,19 +55,23 @@ export default function Newsletter() {
           type="email" value={email} onChange={e => setEmail(e.target.value)}
           placeholder="E-posta adresiniz" required
           style={{
-            flex: 1, padding: "10px 14px", background: "#1a1a1a", border: "1px solid #333",
-            borderRadius: 4, color: "#fff", fontSize: 13, fontFamily: "var(--sans)",
+            flex: 1, padding: "10px 16px",
+            background: "var(--surface2)", border: "1px solid var(--border2)",
+            borderRadius: "var(--radius)", color: "var(--ink)", fontSize: 14,
+            fontFamily: "var(--sans)", outline: "none",
           }}
         />
         <button type="submit" disabled={status === "loading"}
           style={{
-            padding: "10px 20px", background: "var(--accent)", color: "#fff", border: "none",
-            borderRadius: 4, fontWeight: 600, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap",
+            padding: "10px 24px", background: "var(--accent)", color: "var(--bg)",
+            border: "none", borderRadius: "var(--radius)",
+            fontWeight: 600, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap",
+            fontFamily: "var(--sans)",
           }}>
           {status === "loading" ? "..." : "Abone Ol"}
         </button>
       </form>
-      {status === "error" && <p style={{ color: "#f87171", fontSize: 12, marginTop: 8 }}>Bir hata oluştu, tekrar deneyin.</p>}
+      {status === "error" && <p style={{ color: "var(--dn)", fontSize: 13, marginTop: 8 }}>Bir hata oluştu, tekrar deneyin.</p>}
     </div>
   );
 }

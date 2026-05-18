@@ -82,12 +82,12 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
       </div>
 
       {/* Title */}
-      <h1 style={{fontFamily:"var(--serif)",fontSize:"clamp(28px,4vw,42px)",fontWeight:900,color:"var(--ink)",lineHeight:1.12,letterSpacing:"-.03em",marginBottom:16}}>
+      <h1 style={{fontFamily:"var(--display)",fontSize:"clamp(28px,4vw,42px)",fontWeight:900,color:"var(--ink)",lineHeight:1.12,letterSpacing:"-.03em",marginBottom:16}}>
         {a.title}
       </h1>
 
       {/* Lead */}
-      <p style={{fontFamily:"var(--sans)",fontSize:17,fontWeight:300,color:"var(--muted)",lineHeight:1.7,marginBottom:24,borderBottom:"1px solid var(--rule)",paddingBottom:24}}>
+      <p style={{fontFamily:"var(--sans)",fontSize:17,fontWeight:300,color:"var(--muted)",lineHeight:1.7,marginBottom:24,borderBottom:"1px solid var(--border)",paddingBottom:24}}>
         {a.meta}
       </p>
 
@@ -103,7 +103,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
 
       {/* Image */}
       {img&&(
-        <figure style={{margin:"0 0 32px",borderRadius:4,overflow:"hidden",border:"1px solid var(--rule)",position:"relative",aspectRatio:"16/9"}}>
+        <figure style={{margin:"0 0 32px",borderRadius:4,overflow:"hidden",border:"1px solid var(--border)",position:"relative",aspectRatio:"16/9"}}>
           <Image src={img} alt={a.title} fill style={{objectFit:"cover"}} sizes="720px" priority />
         </figure>
       )}
@@ -115,14 +115,14 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
       <AdSlot position="inArticle" />
 
       {/* Share buttons (bottom) */}
-      <div style={{marginTop:32,paddingTop:24,borderTop:"1px solid var(--rule)"}}>
+      <div style={{marginTop:32,paddingTop:24,borderTop:"1px solid var(--border)"}}>
         <p style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--muted)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:12}}>Paylaş</p>
         <ShareButtons url={url} title={a.title} />
       </div>
 
       {/* Related articles */}
       {related.length > 0 && (
-        <section style={{marginTop:48,paddingTop:32,borderTop:"1px solid var(--rule)"}}>
+        <section style={{marginTop:48,paddingTop:32,borderTop:"1px solid var(--border)"}}>
           <div className="sec-rule" style={{paddingTop:0}}>
             <span className="sec-rule-label" style={{color:cfg.c}}>İlgili Haberler</span>
             <div className="sec-rule-line"/>
@@ -133,7 +133,7 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
         </section>
       )}
 
-      <div style={{marginTop:48,paddingTop:24,borderTop:"1px solid var(--rule)"}}>
+      <div style={{marginTop:48,paddingTop:24,borderTop:"1px solid var(--border)"}}>
         <Link href="/" style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--muted)",letterSpacing:".1em",textTransform:"uppercase"}}>
           ← Tüm Haberlere Dön
         </Link>
