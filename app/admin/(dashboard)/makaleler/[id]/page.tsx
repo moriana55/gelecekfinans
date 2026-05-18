@@ -54,7 +54,7 @@ export default function EditArticle() {
             <label style={{ fontSize: 11, color: "#666", display: "block", marginBottom: 4 }}>Kategori</label>
             <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
               style={{ width: "100%", padding: "8px", background: "#151515", border: "1px solid #333", borderRadius: 4, color: "#fff", fontSize: 13 }}>
-              {["kripto", "borsa", "döviz", "altın", "ekonomi"].map(c => <option key={c} value={c}>{c}</option>)}
+              {["kripto", "borsa", "doviz", "altin", "ekonomi"].map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>

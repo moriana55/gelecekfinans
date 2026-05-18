@@ -12,8 +12,8 @@ export const RSS_FEEDS = [
 export const CATEGORIES: Record<string, string[]> = {
   kripto: ["bitcoin", "ethereum", "kripto", "btc", "eth", "altcoin", "blockchain"],
   borsa: ["bist", "hisse", "endeks", "borsa", "pay", "temettü"],
-  döviz: ["dolar", "euro", "kur", "forex", "sterlin", "yen"],
-  altın: ["altın", "gram altın", "ons", "çeyrek"],
+  doviz: ["dolar", "euro", "kur", "forex", "sterlin", "yen"],
+  altin: ["altın", "gram altın", "ons", "çeyrek"],
   ekonomi: ["faiz", "enflasyon", "merkez bankası", "tcmb", "büyüme", "fed"],
 };
 
@@ -29,11 +29,11 @@ export const CATEGORY_PROMPTS: Record<string, { system_extra: string; structure:
     system_extra: "BIST ve küresel borsalarda hisse senedi analizi, bilanço okuma ve sektör karşılaştırmasında uzmansın. BIST endeks seviyeleri, yabancı yatırımcı hareketleri ve sektörel rotasyonu analiz et.",
     structure: "Borsa Görünümü → Teknik Analiz → Sektörel Değerlendirme → Kurumsal Yatırımcı Hareketi → Strateji",
   },
-  döviz: {
+  doviz: {
     system_extra: "Forex piyasaları, merkez bankası politikaları ve TL kur dinamiklerinde uzmansın. TCMB kararları, cari açık, rezerv ve faiz farkını birlikte değerlendir.",
     structure: "Kur Tablosu → Teknik Seviyeler → TCMB Politikası → Küresel Dolar Endeksi → TL Beklentisi",
   },
-  altın: {
+  altin: {
     system_extra: "Kıymetli madenler piyasasında gram altın, ons altın ve TL bazlı fiyatlama konusunda uzmansın. Fed faiz beklentisi, jeopolitik risk ve enflasyonu birlikte değerlendir.",
     structure: "Altın Fiyatı → Küresel Sürücüler → Fed & Enflasyon Bağlantısı → Gram Altın TL Analizi → Yatırım Perspektifi",
   },

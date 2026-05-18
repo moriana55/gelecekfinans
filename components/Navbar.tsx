@@ -6,8 +6,8 @@ import Search from "./Search";
 const CATS=[
   {k:"kripto",l:"Kripto Para"},
   {k:"borsa",l:"Borsa"},
-  {k:"döviz",l:"Döviz"},
-  {k:"altın",l:"Altın"},
+  {k:"doviz",l:"Döviz"},
+  {k:"altin",l:"Altın"},
   {k:"ekonomi",l:"Ekonomi"},
 ];
 

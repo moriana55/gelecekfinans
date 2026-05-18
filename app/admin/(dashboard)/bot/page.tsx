@@ -24,8 +24,8 @@ const CATEGORIES = [
   { value: "", label: "Tümü" },
   { value: "kripto", label: "Kripto" },
   { value: "borsa", label: "Borsa" },
-  { value: "döviz", label: "Döviz" },
-  { value: "altın", label: "Altın" },
+  { value: "doviz", label: "Döviz" },
+  { value: "altin", label: "Altın" },
   { value: "ekonomi", label: "Ekonomi" },
 ];
 

@@ -5,8 +5,8 @@ import type { Article } from "@/lib/types";
 export const CATS: Record<string, {l:string;c:string}> = {
   kripto: {l:"KRİPTO",c:"#f59e0b"},
   borsa:  {l:"BORSA", c:"#34d399"},
-  döviz:  {l:"DÖVİZ", c:"#60a5fa"},
-  altın:  {l:"ALTIN", c:"#d4a853"},
+  doviz:  {l:"DÖVİZ", c:"#60a5fa"},
+  altin:  {l:"ALTIN", c:"#d4a853"},
   ekonomi:{l:"EKONOMİ",c:"#a78bfa"},
 };
 

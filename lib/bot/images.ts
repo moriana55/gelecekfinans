@@ -1,8 +1,8 @@
 const QUERY_MAP: Record<string, string[]> = {
   kripto: ["cryptocurrency abstract premium", "bitcoin luxury", "digital gold technology", "blockchain secure background", "crypto world cinematic"],
   borsa: ["stock market professional", "wall street skyscraper cinematic", "trading desk professional", "financial district architecture", "bull market bronze"],
-  döviz: ["international currency bills premium", "global finance abstract", "money bills clean", "bank interior modern", "wealth concept luxury"],
-  altın: ["gold bars luxury", "pure gold coins premium", "precious metals minimalist", "investment gold cinematic", "gold texture rich"],
+  doviz: ["international currency bills premium", "global finance abstract", "money bills clean", "bank interior modern", "wealth concept luxury"],
+  altin: ["gold bars luxury", "pure gold coins premium", "precious metals minimalist", "investment gold cinematic", "gold texture rich"],
   ekonomi: ["modern city architecture", "central bank building premium", "corporate office minimalist", "global trade logistic", "macroeconomics abstract"],
 };
 

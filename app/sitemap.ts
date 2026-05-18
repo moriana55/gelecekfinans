@@ -14,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const categories = ["kripto", "borsa", "döviz", "altın", "ekonomi"];
+  const categories = ["kripto", "borsa", "doviz", "altin", "ekonomi"];
   const catEntries = categories.map((c) => ({
     url: `${BASE}/kategori/${c}`,
     changeFrequency: "daily" as const,
