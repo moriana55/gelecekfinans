@@ -4,20 +4,20 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --bg:       #0a0a0b;
-  --surface:  #111113;
-  --surface2: #18181b;
-  --surface3: #1f1f23;
-  --border:   rgba(255,255,255,.08);
-  --border2:  rgba(255,255,255,.12);
-  --ink:      #f0f0f2;
-  --ink2:     #b0b0b8;
+  --bg:       #ffffff;
+  --surface:  #f8f8fa;
+  --surface2: #f0f0f4;
+  --surface3: #e8e8ee;
+  --border:   rgba(0,0,0,.08);
+  --border2:  rgba(0,0,0,.12);
+  --ink:      #111113;
+  --ink2:     #3a3a44;
   --muted:    #6b6b78;
-  --faint:    #3a3a44;
-  --accent:   #d4a853;
-  --accent2:  #e8c06a;
-  --up:       #34d399;
-  --dn:       #f87171;
+  --faint:    #c8c8d0;
+  --accent:   #c4942e;
+  --accent2:  #a87d1f;
+  --up:       #16a34a;
+  --dn:       #dc2626;
   --mono:     'JetBrains Mono', monospace;
   --display:  'Clash Display', system-ui, sans-serif;
   --sans:     'Satoshi', system-ui, sans-serif;
@@ -41,18 +41,18 @@ body {
   line-height: 1.6;
 }
 a { text-decoration: none; color: inherit; }
-::selection { background: oklch(from var(--accent) l c h / .3); color: var(--ink); }
+::selection { background: rgba(196,148,46,.2); color: var(--ink); }
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 2px; }
 
 /* ── PRICE BAR ── */
 .pbar {
-  background: #060607;
+  background: #1a1a2e;
   height: 40px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(255,255,255,.08);
   overflow: hidden;
 }
 .pbar-scroll {
@@ -96,7 +96,7 @@ a { text-decoration: none; color: inherit; }
   position: sticky;
   top: 0;
   z-index: 40;
-  background: oklch(from var(--bg) l c h / .92);
+  background: rgba(255,255,255,.92);
   backdrop-filter: blur(16px) saturate(1.2);
   border-bottom: 1px solid var(--border);
 }
@@ -431,8 +431,8 @@ a { text-decoration: none; color: inherit; }
   left: 0;
   right: 0;
   z-index: 50;
-  background: #060607;
-  border-top: 1px solid var(--border);
+  background: #1a1a2e;
+  border-top: 1px solid rgba(255,255,255,.08);
   height: 36px;
   overflow: hidden;
 }
@@ -500,7 +500,7 @@ a { text-decoration: none; color: inherit; }
 }
 .search-overlay {
   position: fixed; inset: 0; z-index: 200;
-  background: oklch(0 0 0 / .7);
+  background: rgba(0,0,0,.5);
   backdrop-filter: blur(8px);
   display: flex; align-items: flex-start; justify-content: center;
   padding-top: 100px;
@@ -512,7 +512,7 @@ a { text-decoration: none; color: inherit; }
   border-radius: 10px;
   width: 100%; max-width: 600px;
   overflow: hidden;
-  box-shadow: 0 24px 80px rgba(0,0,0,.5), 0 0 0 1px var(--border2);
+  box-shadow: 0 24px 80px rgba(0,0,0,.15), 0 0 0 1px var(--border2);
 }
 .search-input {
   width: 100%; border: none; outline: none;
