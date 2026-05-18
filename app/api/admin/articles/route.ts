@@ -1,0 +1,82 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { slugify } from "@/lib/slug";
+import { analyzeSeo } from "@/lib/seo";
+import { isDuplicate } from "@/lib/duplicate";
+
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const url = req.nextUrl;
+  const status = url.searchParams.get("status") || undefined;
+  const category = url.searchParams.get("category") || undefined;
+  const search = url.searchParams.get("q") || undefined;
+  const page = parseInt(url.searchParams.get("page") || "1");
+  const limit = 20;
+
+  const where: Record<string, unknown> = {};
+  if (status) where.status = status;
+  if (category) where.category = category;
+  if (search) where.title = { contains: search, mode: "insensitive" };
+
+  const [articles, total] = await Promise.all([
+    prisma.article.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true, title: true, slug: true, category: true, status: true,
+        articleSource: true, seoScore: true, publishedAt: true, createdAt: true, duplicateOf: true,
+      },
+    }),
+    prisma.article.count({ where }),
+  ]);
+
+  return NextResponse.json({ articles, total, page, pages: Math.ceil(total / limit) });
+}
+
+export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const body = await req.json();
+  const { title, meta, keyword, category, content, imageUrl, source } = body;
+
+  if (!title || !meta || !category || !content) {
+    return NextResponse.json({ error: "Eksik alan" }, { status: 400 });
+  }
+
+  const slug = slugify(title);
+
+  // Duplicate check
+  const recent = await prisma.article.findMany({
+    where: { createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
+    select: { id: true, title: true, content: true },
+  });
+  const dupCheck = isDuplicate(title, content, recent);
+  if (dupCheck.duplicate) {
+    return NextResponse.json({
+      error: "Duplicate tespit edildi",
+      matchId: dupCheck.matchId,
+      score: dupCheck.score,
+    }, { status: 409 });
+  }
+
+  // SEO score
+  const seo = analyzeSeo({ title, meta, keyword, content, slug });
+
+  const article = await prisma.article.create({
+    data: {
+      title, slug, meta, keyword, category, content, imageUrl, source,
+      articleSource: "MANUAL",
+      status: "DRAFT",
+      seoScore: seo.score,
+    },
+  });
+
+  return NextResponse.json({ article, seo });
+}

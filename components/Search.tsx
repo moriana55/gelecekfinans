@@ -1,0 +1,106 @@
+"use client";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
+
+interface Article { title: string; meta: string; category: string; slug: string; image_path: string | null; }
+
+const CATS: Record<string, { l: string; c: string }> = {
+  kripto:{l:"KRİPTO",c:"#f7931a"},borsa:{l:"BORSA",c:"#16a34a"},
+  döviz:{l:"DÖVİZ",c:"#2563eb"},altın:{l:"ALTIN",c:"#e8a000"},ekonomi:{l:"EKONOMİ",c:"#7c3aed"},
+};
+
+export default function Search() {
+  const [open, setOpen]       = useState(false);
+  const [q, setQ]             = useState("");
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [idx, setIdx]         = useState(0);
+  const inputRef              = useRef<HTMLInputElement>(null);
+  const router                = useRouter();
+
+  useEffect(() => {
+    fetch("/api/articles").then(r => r.json()).then(setArticles).catch(() => {});
+  }, []);
+
+  const results = q.trim().length > 1
+    ? articles.filter(a =>
+        a.title.toLowerCase().includes(q.toLowerCase()) ||
+        a.category.toLowerCase().includes(q.toLowerCase())
+      ).slice(0, 8)
+    : [];
+
+  const close = useCallback(() => { setOpen(false); setQ(""); setIdx(0); }, []);
+  const go    = (slug: string) => { router.push(`/${slug}`); close(); };
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if ((e.key === "/" || (e.key === "k" && (e.metaKey || e.ctrlKey))) && !open) {
+        e.preventDefault(); setOpen(true);
+      }
+      if (e.key === "Escape") close();
+      if (!open) return;
+      if (e.key === "ArrowDown")  { e.preventDefault(); setIdx(i => Math.min(i + 1, results.length - 1)); }
+      if (e.key === "ArrowUp")    { e.preventDefault(); setIdx(i => Math.max(i - 1, 0)); }
+      if (e.key === "Enter" && results[idx]) go(results[idx].slug);
+    };
+    window.addEventListener("keydown", down);
+    return () => window.removeEventListener("keydown", down);
+  }, [open, results, idx, close]);
+
+  useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 50); }, [open]);
+  useEffect(() => { setIdx(0); }, [q]);
+
+  if (!open) return (
+    <button className="search-btn" onClick={() => setOpen(true)}>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Ara
+      <kbd>/</kbd>
+    </button>
+  );
+
+  return (
+    <div className="search-overlay" onClick={close}>
+      <div className="search-box" onClick={e => e.stopPropagation()}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 22px" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input
+            ref={inputRef} className="search-input" placeholder="Haber ara..."
+            value={q} onChange={e => setQ(e.target.value)}
+          />
+          {q && <button onClick={() => setQ("")} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 18 }}>×</button>}
+        </div>
+        <div className="search-divider" />
+        <div className="search-results">
+          {q.trim().length < 2 && (
+            <div className="search-empty">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ddd" strokeWidth="1.5" strokeLinecap="round" style={{ margin: "0 auto 8px", display: "block" }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              Aramak istediğini yaz
+            </div>
+          )}
+          {q.trim().length >= 2 && results.length === 0 && (
+            <div className="search-empty">"{q}" için sonuç bulunamadı</div>
+          )}
+          {results.map((a, i) => {
+            const cat = CATS[a.category];
+            const imgUrl = a.image_path ? `/api/gorsel?p=${encodeURIComponent(a.image_path.replace(/^.*gelecekfinans-bot\//, ""))}` : null;
+            return (
+              <div key={a.slug} className="search-result" style={{ background: i === idx ? "#f5f3ee" : undefined }} onClick={() => go(a.slug)}>
+                {imgUrl
+                  ? <img src={imgUrl} alt="" className="search-result-img" />
+                  : <div className="search-result-img" style={{ borderRadius: 6 }} />}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {cat && <span className="search-result-cat" style={{ color: cat.c }}>{cat.l}</span>}
+                  <p className="search-result-title">{a.title}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="search-hint">
+          <span><kbd className="search-key">↑↓</kbd> Gezin</span>
+          <span><kbd className="search-key">↵</kbd> Aç</span>
+          <span><kbd className="search-key">Esc</kbd> Kapat</span>
+        </div>
+      </div>
+    </div>
+  );
+}

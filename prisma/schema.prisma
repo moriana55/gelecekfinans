@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+enum ArticleSource {
+  BOT
+  MANUAL
+}
+
+model Article {
+  id            String         @id @default(cuid())
+  title         String
+  slug          String         @unique
+  meta          String
+  keyword       String?
+  category      String
+  content       String
+  imageUrl      String?
+  source        String?
+  status        ArticleStatus  @default(DRAFT)
+  articleSource ArticleSource  @default(BOT)
+  duplicateOf   String?
+  seoScore      Int?
+  publishedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([category, status])
+  @@index([status, publishedAt(sort: Desc)])
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+}
+
+model SiteSettings {
+  id    String @id @default("singleton")
+  value Json   @default("{}")
+}
+
+model BreakingNews {
+  id        String   @id @default(cuid())
+  text      String
+  url       String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  createdAt DateTime @default(now())
+
+  @@index([path, createdAt])
+}
+
+model BotRun {
+  id                String    @id @default(cuid())
+  startedAt         DateTime  @default(now())
+  finishedAt        DateTime?
+  articlesFound     Int       @default(0)
+  articlesAdded     Int       @default(0)
+  duplicatesSkipped Int       @default(0)
+  errors            String?
+  status            String    @default("running")
+}
