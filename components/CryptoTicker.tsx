@@ -13,7 +13,8 @@ export default function CryptoTicker(){
     <div className="ticker-wrap">
       <div className="ticker-belt">
         {items.map((c,i)=>{
-          const up=c.price_change_percentage_24h>=0;
+          const pct=c.price_change_percentage_24h??0;
+          const up=pct>=0;
           const price=c.current_price>=1000
             ?c.current_price.toLocaleString("tr-TR",{maximumFractionDigits:0})
             :c.current_price.toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:4});
@@ -22,7 +23,7 @@ export default function CryptoTicker(){
               <img src={c.image} alt="" style={{width:14,height:14,borderRadius:"50%"}}/>
               <span className="t-sym">{c.symbol}</span>
               <span className="t-price">₺{price}</span>
-              <span className={up?"t-up":"t-dn"}>{up?"+":""}{c.price_change_percentage_24h.toFixed(2)}%</span>
+              <span className={up?"t-up":"t-dn"}>{up?"+":""}{pct.toFixed(2)}%</span>
             </div>
           );
         })}
