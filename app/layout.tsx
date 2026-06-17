@@ -14,9 +14,18 @@ const BASE = "https://gelecekfinans.com";
 export const metadata: Metadata = {
   title: { default: "GelecekFinans — Finans & Ekonomi Haberleri", template: "%s | GelecekFinans" },
   description: "Borsa, döviz, kripto para, altın ve ekonomi alanında güncel haberler ve analizler.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   robots: { index: true, follow: true },
   metadataBase: new URL(BASE),
   alternates: { types: { "application/rss+xml": "/feed.xml" } },
+  other: { "theme-color": "#111111", "apple-mobile-web-app-capable": "yes" },
   openGraph: {
     type: "website",
     locale: "tr_TR",
@@ -32,10 +41,18 @@ export const metadata: Metadata = {
   },
 };
 
+const CATS = [
+  { k: "kripto", l: "Kripto Para" },
+  { k: "borsa", l: "Borsa" },
+  { k: "doviz", l: "Döviz" },
+  { k: "altin", l: "Altın" },
+  { k: "ekonomi", l: "Ekonomi" },
+];
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="tr">
-      <body style={{ paddingBottom: 40 }}>
+      <body className="pb-ticker">
         <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({
           "@context":"https://schema.org","@type":"WebSite",
           name:"GelecekFinans",url:BASE,
@@ -48,40 +65,41 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <PriceBar />
         <Navbar />
         <main>{children}</main>
-        <footer style={{
-          background: "#060607",
-          borderTop: "1px solid rgba(255,255,255,.06)",
-          padding: "48px 28px 28px",
-          marginTop: 80,
-        }}>
-          <div style={{
-            maxWidth: 1320, margin: "0 auto",
-            display: "grid", gridTemplateColumns: "1fr auto", gap: 32, alignItems: "start",
-          }}>
-            <div>
-              <div style={{ fontFamily: "var(--display)", fontSize: 20, fontWeight: 700, color: "#f0f0f2", marginBottom: 4 }}>
-                gelecek<span style={{ color: "#d4a853" }}>finans</span>
-              </div>
-              <p style={{ fontFamily: "var(--mono)", fontSize: 10, color: "#6b6b78", letterSpacing: ".12em", textTransform: "uppercase" }}>
-                Finans & Ekonomi Haberleri
-              </p>
+        <footer className="footer">
+          <div className="footer-grid">
+            <div className="footer-col">
+              <div className="footer-brand">gelecek<span>finans</span></div>
+              <p className="footer-tagline">Finans & Ekonomi Haberleri</p>
+              <p className="footer-desc">Borsa, döviz, kripto para, altın ve ekonomi alanında güncel haberler ve analizler.</p>
             </div>
-            <div style={{ display: "flex", gap: 28, flexWrap: "wrap" }}>
-              <Link href="/hakkimizda" style={{ fontFamily: "var(--sans)", fontSize: 13, color: "#6b6b78", transition: "color .2s" }}>Hakkımızda</Link>
-              <Link href="/iletisim" style={{ fontFamily: "var(--sans)", fontSize: 13, color: "#6b6b78", transition: "color .2s" }}>İletişim</Link>
-              <Link href="/gizlilik-politikasi" style={{ fontFamily: "var(--sans)", fontSize: 13, color: "#6b6b78", transition: "color .2s" }}>Gizlilik</Link>
-              <Link href="/kullanim-kosullari" style={{ fontFamily: "var(--sans)", fontSize: 13, color: "#6b6b78", transition: "color .2s" }}>Kullanım Koşulları</Link>
-              <a href="/feed.xml" style={{ fontFamily: "var(--sans)", fontSize: 13, color: "#6b6b78", transition: "color .2s" }}>RSS</a>
+            <div className="footer-col">
+              <h4>Kategoriler</h4>
+              {CATS.map(c => (
+                <Link key={c.k} href={`/kategori/${c.k}`} className="footer-link">{c.l}</Link>
+              ))}
+            </div>
+            <div className="footer-col">
+              <h4>Şirket</h4>
+              <Link href="/arsiv" className="footer-link">Haber Arşivi</Link>
+              <Link href="/hakkimizda" className="footer-link">Hakkımızda</Link>
+              <Link href="/iletisim" className="footer-link">İletişim</Link>
+              <a href="/feed.xml" className="footer-link">RSS Beslemesi</a>
+            </div>
+            <div className="footer-col">
+              <h4>Yasal</h4>
+              <Link href="/gizlilik-politikasi" className="footer-link">Gizlilik Politikası</Link>
+              <Link href="/kullanim-kosullari" className="footer-link">Kullanım Koşulları</Link>
             </div>
           </div>
-          <div style={{
-            maxWidth: 1320, margin: "0 auto",
-            borderTop: "1px solid rgba(255,255,255,.06)",
-            marginTop: 32, paddingTop: 20,
-          }}>
-            <p style={{ fontFamily: "var(--mono)", fontSize: 11, color: "#3a3a44", textAlign: "center", letterSpacing: ".04em" }}>
+          <div className="footer-bottom">
+            <p className="footer-copyright">
               © {new Date().getFullYear()} GelecekFinans — Yayınlanan içerikler bilgi amaçlıdır, yatırım tavsiyesi değildir.
             </p>
+            <div className="footer-social">
+              <a href="https://x.com" target="_blank" rel="noopener noreferrer" aria-label="X">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </a>
+            </div>
           </div>
         </footer>
         <CryptoTicker />

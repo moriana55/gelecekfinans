@@ -55,11 +55,12 @@ model SiteSettings {
 }
 
 model BreakingNews {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   text      String
   url       String?
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  active    Boolean   @default(true)
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
 }
 
 model Subscriber {
