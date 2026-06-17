@@ -61,10 +61,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           },"query-input":"required name=search_term_string"}
         })}}/>
         <GoogleAnalytics />
+        <a href="#main" className="skip-link">İçeriğe geç</a>
         <BreakingNews />
         <PriceBar />
         <Navbar />
-        <main>{children}</main>
+        <main id="main">{children}</main>
         <footer className="footer">
           <div className="footer-grid">
             <div className="footer-col">

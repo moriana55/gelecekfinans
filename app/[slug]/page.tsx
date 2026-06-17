@@ -120,29 +120,15 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
 
       {/* Premium gate */}
       {gated && (
-        <div className="premium-gate" style={{
-          position:"relative",marginTop:-60,paddingTop:80,
-          background:"linear-gradient(to bottom, rgba(255,255,255,0), var(--bg, #fff) 60%)",
-        }}>
-          <div style={{
-            textAlign:"center",border:"1px solid #e5e5e5",borderRadius:12,
-            padding:"32px 24px",background:"#fafafa",maxWidth:520,margin:"0 auto",
-          }}>
-            <span style={{
-              display:"inline-block",fontSize:11,fontWeight:700,letterSpacing:"0.05em",
-              color:"#b45309",background:"#fef3c7",padding:"4px 10px",borderRadius:20,
-            }}>PREMIUM İÇERİK</span>
-            <h2 style={{fontSize:20,fontWeight:800,color:"#111",margin:"14px 0 8px"}}>
-              Yazının devamını okumak için üye girişi yapın
-            </h2>
-            <p style={{fontSize:14,color:"#666",margin:"0 0 20px",lineHeight:1.6}}>
+        <div className="premium-gate">
+          <div className="premium-card">
+            <span className="premium-pill">PREMIUM İÇERİK</span>
+            <h2>Yazının devamını okumak için üye girişi yapın</h2>
+            <p>
               Bu analiz GelecekFinans üyelerine özeldir. Ücretsiz hesabınızla
               tüm premium içeriklere erişebilirsiniz.
             </p>
-            <Link href="/admin/giris" style={{
-              display:"inline-block",padding:"12px 28px",background:"#c73030",
-              color:"#fff",textDecoration:"none",borderRadius:6,fontWeight:600,fontSize:14,
-            }}>Üye Girişi</Link>
+            <Link href="/admin/giris" className="btn">Üye Girişi</Link>
           </div>
         </div>
       )}

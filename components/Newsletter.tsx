@@ -58,40 +58,33 @@ export default function Newsletter() {
 
   return (
     <div className="newsletter-box">
+      <p className="newsletter-eyebrow">Ücretsiz Bülten</p>
       <p className="newsletter-title">Günlük Finans Bülteni</p>
       <p className="newsletter-desc">Her sabah piyasa özeti ve öne çıkan haberler e-postanızda.</p>
       <form onSubmit={subscribe} className="newsletter-form">
         <input
           type="email" value={email} onChange={e => setEmail(e.target.value)}
-          placeholder="E-posta adresiniz" required
+          placeholder="E-posta adresiniz" required aria-label="E-posta adresiniz"
           className="newsletter-input"
         />
         <button type="submit" disabled={status === "loading"} className="btn">
           {status === "loading" ? "..." : "Abone Ol"}
         </button>
       </form>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+      <div className="newsletter-prefs">
         {PREFS.map(p => (
           <button
             key={p.key}
             type="button"
+            aria-pressed={prefs.includes(p.key)}
             onClick={() => togglePref(p.key)}
-            style={{
-              fontSize: 11,
-              padding: "4px 10px",
-              borderRadius: 16,
-              border: "1px solid",
-              borderColor: prefs.includes(p.key) ? "#c73030" : "rgba(255,255,255,0.25)",
-              background: prefs.includes(p.key) ? "#c73030" : "transparent",
-              color: prefs.includes(p.key) ? "#fff" : "inherit",
-              cursor: "pointer",
-            }}
+            className={`newsletter-chip${prefs.includes(p.key) ? " on" : ""}`}
           >
             {p.label}
           </button>
         ))}
       </div>
-      <p style={{ fontSize: 10, opacity: 0.6, marginTop: 6 }}>
+      <p className="newsletter-fineprint">
         İlgi alanı seçmezseniz tüm kategorilerden haber alırsınız.
       </p>
       {status === "error" && <p className="newsletter-error">Bir hata oluştu, tekrar deneyin.</p>}
