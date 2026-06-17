@@ -27,19 +27,17 @@ export default function SettingsPage() {
 
   return (
     <div style={{ maxWidth: 600 }}>
-      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24 }}>Site Ayarları</h1>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24, color: "#111" }}>Site Ayarları</h1>
 
-      {/* Analytics */}
       <Section title="Google Analytics">
         <Field label="GA4 Measurement ID" placeholder="G-XXXXXXXXXX" value={settings.ga4Id}
           onChange={v => setSettings(s => ({ ...s, ga4Id: v }))} />
       </Section>
 
-      {/* AdSense */}
       <Section title="Google AdSense">
         <Field label="AdSense Publisher ID" placeholder="ca-pub-XXXXXXXX" value={settings.adsenseId}
           onChange={v => setSettings(s => ({ ...s, adsenseId: v }))} />
-        <p style={{ fontSize: 11, color: "#666", margin: "12px 0 8px" }}>Reklam Pozisyonları</p>
+        <p style={{ fontSize: 11, color: "#999", margin: "12px 0 8px" }}>Reklam Pozisyonları</p>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <Toggle label="Header Banner" checked={settings.adSlots.headerBanner}
             onChange={v => setSettings(s => ({ ...s, adSlots: { ...s.adSlots, headerBanner: v } }))} />
@@ -53,7 +51,7 @@ export default function SettingsPage() {
       </Section>
 
       <button onClick={save} disabled={saving}
-        style={{ marginTop: 24, padding: "12px 28px", background: "#fff", color: "#000", border: "none", borderRadius: 4, fontWeight: 600, cursor: "pointer" }}>
+        style={{ marginTop: 24, padding: "12px 28px", background: "#c73030", color: "#fff", border: "none", borderRadius: 6, fontWeight: 600, cursor: "pointer" }}>
         {saving ? "Kaydediliyor..." : saved ? "Kaydedildi ✓" : "Kaydet"}
       </button>
     </div>
@@ -62,8 +60,8 @@ export default function SettingsPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: 28, padding: 20, background: "#151515", border: "1px solid #222", borderRadius: 8 }}>
-      <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: "#ccc" }}>{title}</h2>
+    <div style={{ marginBottom: 28, padding: 20, background: "#fff", border: "1px solid #e5e5e5", borderRadius: 10 }}>
+      <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: "#333" }}>{title}</h2>
       {children}
     </div>
   );
@@ -72,9 +70,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <label style={{ display: "block", marginBottom: 12 }}>
-      <span style={{ fontSize: 11, color: "#666", display: "block", marginBottom: 4 }}>{label}</span>
+      <span style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>{label}</span>
       <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-        style={{ width: "100%", padding: "8px 12px", background: "#0a0a0a", border: "1px solid #333", borderRadius: 4, color: "#fff", fontSize: 13 }} />
+        style={{ width: "100%", padding: "8px 12px", background: "#fafafa", border: "1px solid #ddd", borderRadius: 6, color: "#111", fontSize: 13 }} />
     </label>
   );
 }
@@ -83,10 +81,10 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   return (
     <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
       <div onClick={() => onChange(!checked)}
-        style={{ width: 36, height: 20, borderRadius: 10, background: checked ? "#4ade80" : "#333", position: "relative", transition: "background .2s" }}>
-        <div style={{ width: 16, height: 16, borderRadius: 8, background: "#fff", position: "absolute", top: 2, left: checked ? 18 : 2, transition: "left .2s" }} />
+        style={{ width: 36, height: 20, borderRadius: 10, background: checked ? "#16a34a" : "#ddd", position: "relative", transition: "background .2s" }}>
+        <div style={{ width: 16, height: 16, borderRadius: 8, background: "#fff", position: "absolute", top: 2, left: checked ? 18 : 2, transition: "left .2s", boxShadow: "0 1px 3px rgba(0,0,0,.1)" }} />
       </div>
-      <span style={{ fontSize: 12, color: "#aaa" }}>{label}</span>
+      <span style={{ fontSize: 12, color: "#666" }}>{label}</span>
     </label>
   );
 }

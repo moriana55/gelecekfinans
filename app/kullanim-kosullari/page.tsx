@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function KullanimKosullari() {
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "60px 24px 100px" }}>
-      <h1 style={{ fontFamily: "var(--serif)", fontSize: 36, fontWeight: 900, marginBottom: 24 }}>Kullanım Koşulları</h1>
+      <h1 style={{ fontFamily: "var(--display)", fontSize: 36, fontWeight: 900, marginBottom: 24 }}>Kullanım Koşulları</h1>
       <div className="article-prose">
         <p><strong>Son güncelleme:</strong> 17 Mayıs 2026</p>
 

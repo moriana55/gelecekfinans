@@ -36,9 +36,35 @@ export async function GET(req: NextRequest) {
   }
   const daily = Object.entries(dailyMap).map(([date, count]) => ({ date, count }));
 
+  // Top articles with titles
+  const articlePaths = topPages
+    .filter(p => p.path !== "/" && !p.path.startsWith("/kategori") && !p.path.startsWith("/admin") && !p.path.startsWith("/hakkimizda") && !p.path.startsWith("/iletisim"))
+    .slice(0, 15);
+
+  const slugs = articlePaths.map(p => p.path.replace(/^\//, ""));
+  const articles = slugs.length > 0
+    ? await prisma.article.findMany({
+        where: { slug: { in: slugs } },
+        select: { slug: true, title: true, category: true },
+      })
+    : [];
+  const articleMap = new Map(articles.map(a => [a.slug, a]));
+
+  const topArticles = articlePaths.map(p => {
+    const slug = p.path.replace(/^\//, "");
+    const article = articleMap.get(slug);
+    return {
+      path: p.path,
+      views: p._count.path,
+      title: article?.title || slug,
+      category: article?.category || null,
+    };
+  });
+
   return NextResponse.json({
     totalViews,
     topPages: topPages.map(p => ({ path: p.path, views: p._count.path })),
+    topArticles,
     daily,
   });
 }

@@ -11,12 +11,15 @@ export const revalidate = 300;
 const PER_PAGE = 20;
 const BASE = "https://gelecekfinans.com";
 
-export async function generateMetadata({params}:{params:Promise<{cat:string}>}):Promise<Metadata>{
+export async function generateMetadata({params, searchParams}:{params:Promise<{cat:string}>; searchParams:Promise<{sayfa?:string}>}):Promise<Metadata>{
   const {cat}=await params; const c=CATS[cat]; if(!c)return{};
+  const {sayfa}=await searchParams;
+  const page = Math.max(1, parseInt(sayfa || "1"));
+  const canonical = page > 1 ? `${BASE}/kategori/${cat}?sayfa=${page}` : `${BASE}/kategori/${cat}`;
   return{
-    title:`${c.l} Haberleri`,
+    title: page > 1 ? `${c.l} Haberleri — Sayfa ${page}` : `${c.l} Haberleri`,
     description:`Güncel ${c.l.toLowerCase()} haberleri ve son dakika gelişmeleri.`,
-    alternates: { canonical: `${BASE}/kategori/${cat}` },
+    alternates: { canonical },
   };
 }
 
@@ -29,25 +32,24 @@ export default async function CatPage({params, searchParams}:{params:Promise<{ca
   const arts = allArts.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   return(
-    <div style={{maxWidth:1280,margin:"0 auto",padding:"28px 24px 80px"}}>
-      <div style={{marginBottom:28,paddingBottom:16,borderBottom:`3px solid ${cfg.c}`}}>
-        <span className="badge" style={{background:cfg.c,marginBottom:10,display:"inline-block"}}>{cfg.l}</span>
-        <h1 style={{fontSize:28,fontWeight:900,color:"var(--ink)",letterSpacing:"-.03em"}}>{cfg.l} Haberleri</h1>
-        <p style={{fontSize:13,color:"var(--muted)",marginTop:6}}>{allArts.length} haber</p>
+    <div className="container page-cat">
+      <div className="cat-header" style={{borderColor:cfg.c}}>
+        <span className="tag" style={{background:cfg.c,marginBottom:10,display:"inline-block"}}>{cfg.l}</span>
+        <h1 className="page-header">{cfg.l} Haberleri</h1>
+        <p className="cat-count">{allArts.length} haber</p>
       </div>
 
       <div className="resp-grid-4">
         {arts.map(a=><MedCard key={a.filename} article={a}/>)}
       </div>
 
-      {!arts.length && <p style={{textAlign:"center",padding:"60px 0",color:"var(--muted)"}}>Bu kategoride henüz haber yok.</p>}
+      {!arts.length && <p className="cat-empty">Bu kategoride henüz haber yok.</p>}
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <nav style={{display:"flex",justifyContent:"center",gap:8,marginTop:32}}>
+        <nav className="pagination">
           {page > 1 && (
-            <Link href={`/kategori/${cat}?sayfa=${page-1}`}
-              style={{padding:"8px 14px",border:"1px solid var(--rule)",borderRadius:4,fontSize:12,color:"var(--muted)",fontFamily:"var(--mono)"}}>
+            <Link href={`/kategori/${cat}?sayfa=${page-1}`} className="page-btn">
               ← Önceki
             </Link>
           )}
@@ -55,16 +57,13 @@ export default async function CatPage({params, searchParams}:{params:Promise<{ca
             const p = i + 1;
             return (
               <Link key={p} href={`/kategori/${cat}?sayfa=${p}`}
-                style={{padding:"8px 12px",border:"1px solid var(--rule)",borderRadius:4,fontSize:12,fontFamily:"var(--mono)",
-                  background: p === page ? "var(--ink)" : "transparent",
-                  color: p === page ? "var(--ground)" : "var(--muted)"}}>
+                className={`page-btn${p === page ? " active" : ""}`}>
                 {p}
               </Link>
             );
           })}
           {page < totalPages && (
-            <Link href={`/kategori/${cat}?sayfa=${page+1}`}
-              style={{padding:"8px 14px",border:"1px solid var(--rule)",borderRadius:4,fontSize:12,color:"var(--muted)",fontFamily:"var(--mono)"}}>
+            <Link href={`/kategori/${cat}?sayfa=${page+1}`} className="page-btn">
               Sonraki →
             </Link>
           )}
@@ -72,7 +71,7 @@ export default async function CatPage({params, searchParams}:{params:Promise<{ca
       )}
 
       {/* Newsletter */}
-      <section style={{marginTop:48}}>
+      <section className="section">
         <Newsletter />
       </section>
     </div>

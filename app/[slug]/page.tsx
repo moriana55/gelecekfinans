@@ -1,4 +1,6 @@
-import { getAllArticles, getArticleBySlug } from "@/lib/articles";
+import { getAllArticles, getArticleBySlug, buildTeaser } from "@/lib/articles";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -9,6 +11,7 @@ import ReadingProgress from "@/components/ReadingProgress";
 import ShareButtons from "@/components/ShareButtons";
 import AdSlot from "@/components/AdSlot";
 import { injectInternalLinks } from "@/lib/internal-links";
+import { readingTime } from "@/lib/reading-time";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 300;
@@ -32,15 +35,20 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
   const img=a.imageUrl;
   const date=new Date(a.created_at).toLocaleDateString("tr-TR",{day:"numeric",month:"long",year:"numeric"});
   const url = `${BASE}/${a.slug}`;
+  const readTime = readingTime(a.content);
 
   // Structured data
   const ld={
     "@context":"https://schema.org","@type":"NewsArticle",headline:a.title,
-    description:a.meta,datePublished:a.created_at,keywords:a.keyword,
+    description:a.meta,datePublished:a.created_at,dateModified:a.updatedAt||a.created_at,keywords:a.keyword,
     mainEntityOfPage:{"@type":"WebPage","@id":url},
     author:{"@type":"Organization",name:"GelecekFinans",url:BASE},
-    publisher:{"@type":"Organization",name:"GelecekFinans",url:BASE},
-    ...(img&&{image:img})
+    publisher:{"@type":"Organization",name:"GelecekFinans",url:BASE,logo:{"@type":"ImageObject",url:`${BASE}/icon.svg`}},
+    ...(img&&{image:img}),
+    ...(a.premium&&{
+      isAccessibleForFree:false,
+      hasPart:{"@type":"WebPageElement",isAccessibleForFree:false,cssSelector:".article-prose"},
+    }),
   };
 
   // Breadcrumb structured data
@@ -59,70 +67,116 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
     .filter(r => r.category === a.category && r.slug !== a.slug)
     .slice(0, 4);
 
+  const tags = a.keyword ? a.keyword.split(/[,;]/).map(k => k.trim()).filter(Boolean) : [];
+
+  // Premium içerik kapısı: giriş yapmış kullanıcılar tam içeriği görür,
+  // diğerleri ~200 kelimelik teaser + üye girişi kapısı görür.
+  const session = a.premium ? await getServerSession(authOptions) : null;
+  const gated = !!a.premium && !session;
+  const bodyHtml = gated
+    ? buildTeaser(a.content, 200)
+    : injectInternalLinks(a.content, a.slug, allArticles);
+
   return(
-    <div style={{maxWidth:720,margin:"0 auto",padding:"40px 24px 100px"}}>
+    <div className="article-container">
       <ReadingProgress/>
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(ld)}}/>
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(breadcrumbLd)}}/>
 
       {/* Breadcrumb */}
-      <nav style={{display:"flex",alignItems:"center",gap:8,marginBottom:28,fontFamily:"var(--mono)",fontSize:10,color:"var(--muted)",letterSpacing:".08em"}}>
-        <Link href="/" style={{color:"var(--muted)"}}>Ana Sayfa</Link>
-        <span>/</span>
+      <nav className="breadcrumb">
+        <Link href="/">Ana Sayfa</Link>
+        <span className="breadcrumb-sep">/</span>
         <Link href={`/kategori/${a.category}`} style={{color:cfg.c}}>{cfg.l}</Link>
-        <span>/</span>
+        <span className="breadcrumb-sep">/</span>
         <span style={{color:"var(--ink)"}}>{a.title.slice(0, 40)}...</span>
       </nav>
 
       {/* Category + date */}
-      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}>
-        <span className="badge" style={{background:cfg.c}}>{cfg.l}</span>
-        <span style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--muted)",letterSpacing:".08em"}}>{date}</span>
-        {a.source&&<span style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--muted)",letterSpacing:".08em"}}>— {a.source}</span>}
+      <div className="article-meta-row">
+        <span className="tag" style={{background:cfg.c}}>{cfg.l}</span>
+        <span className="article-date">{date}</span>
+        <span className="article-date">{readTime}</span>
       </div>
 
       {/* Title */}
-      <h1 style={{fontFamily:"var(--display)",fontSize:"clamp(28px,4vw,42px)",fontWeight:900,color:"var(--ink)",lineHeight:1.12,letterSpacing:"-.03em",marginBottom:16}}>
-        {a.title}
-      </h1>
+      <h1 className="article-title">{a.title}</h1>
 
       {/* Lead */}
-      <p style={{fontFamily:"var(--sans)",fontSize:17,fontWeight:300,color:"var(--muted)",lineHeight:1.7,marginBottom:24,borderBottom:"1px solid var(--border)",paddingBottom:24}}>
-        {a.meta}
-      </p>
+      <p className="article-lead">{a.meta}</p>
 
       {/* Share buttons (top) */}
       <ShareButtons url={url} title={a.title} />
 
-      {/* Keywords */}
-      {a.keyword&&(
-        <p style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--muted)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:28}}>
-          Konu: {a.keyword}
-        </p>
-      )}
-
       {/* Image */}
       {img&&(
-        <figure style={{margin:"0 0 32px",borderRadius:4,overflow:"hidden",border:"1px solid var(--border)",position:"relative",aspectRatio:"16/9"}}>
+        <figure className="article-figure">
           <Image src={img} alt={a.title} fill style={{objectFit:"cover"}} sizes="720px" priority />
         </figure>
       )}
 
-      {/* Body with internal links */}
-      <article className="article-prose" dangerouslySetInnerHTML={{__html:injectInternalLinks(a.content, a.slug, allArticles)}}/>
+      {/* Body with internal links (premium teaser if gated) */}
+      <article className="article-prose" dangerouslySetInnerHTML={{__html:bodyHtml}}/>
+
+      {/* Premium gate */}
+      {gated && (
+        <div className="premium-gate" style={{
+          position:"relative",marginTop:-60,paddingTop:80,
+          background:"linear-gradient(to bottom, rgba(255,255,255,0), var(--bg, #fff) 60%)",
+        }}>
+          <div style={{
+            textAlign:"center",border:"1px solid #e5e5e5",borderRadius:12,
+            padding:"32px 24px",background:"#fafafa",maxWidth:520,margin:"0 auto",
+          }}>
+            <span style={{
+              display:"inline-block",fontSize:11,fontWeight:700,letterSpacing:"0.05em",
+              color:"#b45309",background:"#fef3c7",padding:"4px 10px",borderRadius:20,
+            }}>PREMIUM İÇERİK</span>
+            <h2 style={{fontSize:20,fontWeight:800,color:"#111",margin:"14px 0 8px"}}>
+              Yazının devamını okumak için üye girişi yapın
+            </h2>
+            <p style={{fontSize:14,color:"#666",margin:"0 0 20px",lineHeight:1.6}}>
+              Bu analiz GelecekFinans üyelerine özeldir. Ücretsiz hesabınızla
+              tüm premium içeriklere erişebilirsiniz.
+            </p>
+            <Link href="/admin/giris" style={{
+              display:"inline-block",padding:"12px 28px",background:"#c73030",
+              color:"#fff",textDecoration:"none",borderRadius:6,fontWeight:600,fontSize:14,
+            }}>Üye Girişi</Link>
+          </div>
+        </div>
+      )}
+
+      {/* Tags */}
+      {tags.length > 0 && (
+        <div className="article-tags">
+          {tags.map(tag => (
+            <span key={tag} className="article-tag">{tag}</span>
+          ))}
+        </div>
+      )}
+
+      {/* Author box */}
+      <div className="author-box">
+        <div className="author-avatar">GF</div>
+        <div>
+          <div className="author-name">GelecekFinans</div>
+          <div className="author-role">Finans & Ekonomi Haberleri Editörü</div>
+        </div>
+      </div>
 
       {/* In-article ad slot */}
       <AdSlot position="inArticle" />
 
       {/* Share buttons (bottom) */}
-      <div style={{marginTop:32,paddingTop:24,borderTop:"1px solid var(--border)"}}>
-        <p style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--muted)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:12}}>Paylaş</p>
+      <div className="article-share-bottom">
+        <p className="article-share-label">Paylaş</p>
         <ShareButtons url={url} title={a.title} />
       </div>
 
       {/* Related articles */}
       {related.length > 0 && (
-        <section style={{marginTop:48,paddingTop:32,borderTop:"1px solid var(--border)"}}>
+        <section className="related-section">
           <div className="sec-rule" style={{paddingTop:0}}>
             <span className="sec-rule-label" style={{color:cfg.c}}>İlgili Haberler</span>
             <div className="sec-rule-line"/>
@@ -133,8 +187,8 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
         </section>
       )}
 
-      <div style={{marginTop:48,paddingTop:24,borderTop:"1px solid var(--border)"}}>
-        <Link href="/" style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--muted)",letterSpacing:".1em",textTransform:"uppercase"}}>
+      <div className="article-back">
+        <Link href="/" className="back-link">
           ← Tüm Haberlere Dön
         </Link>
       </div>

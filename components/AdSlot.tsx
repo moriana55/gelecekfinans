@@ -22,12 +22,7 @@ export default function AdSlot({ position }: Props) {
   if (!enabled || !adsenseId) return null;
 
   return (
-    <div style={{
-      margin: "24px 0", padding: 16, background: "var(--ground2)",
-      border: "1px dashed var(--rule)", borderRadius: 4, textAlign: "center",
-      minHeight: position === "headerBanner" ? 90 : 250,
-      display: "flex", alignItems: "center", justifyContent: "center",
-    }}>
+    <div className={`ad-slot ${position === "headerBanner" ? "ad-slot-sm" : "ad-slot-lg"}`}>
       <ins className="adsbygoogle"
         style={{ display: "block" }}
         data-ad-client={adsenseId}

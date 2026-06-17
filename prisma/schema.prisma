@@ -31,6 +31,7 @@ model Article {
   source        String?
   status        ArticleStatus  @default(DRAFT)
   articleSource ArticleSource  @default(BOT)
+  premium       Boolean        @default(false)
   duplicateOf   String?
   seoScore      Int?
   publishedAt   DateTime?
@@ -64,10 +65,35 @@ model BreakingNews {
 }
 
 model Subscriber {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id          String    @id @default(cuid())
+  email       String    @unique
+  active      Boolean   @default(true)
+  // Hangi kategorilere abone (kripto/borsa/doviz/altin/ekonomi). Boş = tümü.
+  preferences String[]  @default([])
+  // Abonenin geldiği kaynak (ör. "site-form", "popup", "import")
+  source      String?
+  // Çift-onay (double opt-in): doğrulanana kadar bülten gönderilmez.
+  confirmed   Boolean   @default(false)
+  confirmedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([active, confirmed])
+}
+
+// A/B konu satırı testli bülten gönderimleri + açılma oranı takibi
+model NewsletterCampaign {
+  id           String   @id @default(cuid())
+  segment      String?  // null = tüm aktif aboneler, aksi halde kategori
+  subjectA     String
+  subjectB     String?  // null ise A/B testi yok
+  recipients   Int      @default(0)
+  recipientsA  Int      @default(0)
+  recipientsB  Int      @default(0)
+  opensA       Int      @default(0)
+  opensB       Int      @default(0)
+  sentAt       DateTime @default(now())
+
+  @@index([sentAt])
 }
 
 model PageView {

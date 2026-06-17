@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function Hakkimizda() {
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "60px 24px 100px" }}>
-      <h1 style={{ fontFamily: "var(--serif)", fontSize: 36, fontWeight: 900, marginBottom: 24 }}>Hakkımızda</h1>
+      <h1 style={{ fontFamily: "var(--display)", fontSize: 36, fontWeight: 900, marginBottom: 24, color: "#111" }}>Hakkımızda</h1>
       <div className="article-prose">
         <p>
           <strong>GelecekFinans</strong>, Türkiye&apos;nin güncel finans ve ekonomi haberlerini hızlı, tarafsız ve

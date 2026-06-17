@@ -3,11 +3,11 @@ import Image from "next/image";
 import type { Article } from "@/lib/types";
 
 export const CATS: Record<string, {l:string;c:string}> = {
-  kripto: {l:"KRİPTO",c:"#f59e0b"},
-  borsa:  {l:"BORSA", c:"#34d399"},
-  doviz:  {l:"DÖVİZ", c:"#60a5fa"},
-  altin:  {l:"ALTIN", c:"#d4a853"},
-  ekonomi:{l:"EKONOMİ",c:"#a78bfa"},
+  kripto: {l:"KRİPTO",c:"#d97706"},
+  borsa:  {l:"BORSA", c:"#16a34a"},
+  doviz:  {l:"DÖVİZ", c:"#2563eb"},
+  altin:  {l:"ALTIN", c:"#b45309"},
+  ekonomi:{l:"EKONOMİ",c:"#7c3aed"},
 };
 
 function Badge({cat}:{cat:string}){
@@ -21,10 +21,16 @@ export function Ago(d:string){
   return new Date(d).toLocaleDateString("tr-TR",{day:"numeric",month:"short",year:"numeric"});
 }
 
+function ViewCount({n}:{n?:number}){
+  if(!n || n < 1) return null;
+  const txt = n >= 1000 ? `${(n/1000).toFixed(1).replace(".0","")}K` : String(n);
+  return <span style={{fontSize:10,color:"#999"}}>&#128065; {txt}</span>;
+}
+
 export function HeroCard({article}:{article:Article}){
   const img=article.imageUrl;
   return(
-    <Link href={`/${article.slug}`} className="hero-editorial" style={{display:"grid",gridTemplateColumns:"1fr 480px"}}>
+    <Link href={`/${article.slug}`} className="hero-editorial">
       <div className="hero-text-col">
         <div>
           <div className="hero-eyebrow">
@@ -35,7 +41,7 @@ export function HeroCard({article}:{article:Article}){
         </div>
         <div className="hero-meta">
           <span>{Ago(article.created_at)}</span>
-          {article.source&&<><span className="hero-meta-dot"/><span>{article.source}</span></>}
+          <ViewCount n={article.views}/>
         </div>
       </div>
       <div className="hero-img-col">
@@ -65,7 +71,7 @@ export function StripCard({article}:{article:Article}){
       }
       <Badge cat={article.category}/>
       <h3 className="strip-card-title">{article.title}</h3>
-      <p className="strip-card-meta">{Ago(article.created_at)}{article.source&&` · ${article.source}`}</p>
+      <p className="strip-card-meta">{Ago(article.created_at)} <ViewCount n={article.views}/></p>
     </Link>
   );
 }
@@ -86,7 +92,7 @@ export function MedCard({article}:{article:Article}){
       <div className="grid-card-body">
         <Badge cat={article.category}/>
         <h3 className="grid-card-title">{article.title}</h3>
-        <p className="grid-card-meta">{Ago(article.created_at)}</p>
+        <p className="grid-card-meta">{Ago(article.created_at)} <ViewCount n={article.views}/></p>
       </div>
     </Link>
   );
@@ -101,7 +107,7 @@ export function RankedCard({article,index}:{article:Article;index:number}){
       <div style={{flex:1,minWidth:0}}>
         {c&&<span style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:600,letterSpacing:".08em",textTransform:"uppercase",color:c.c}}>{c.l}</span>}
         <p className="ranked-row-title" style={{marginTop:4}}>{article.title}</p>
-        <p className="ranked-row-meta">{Ago(article.created_at)}</p>
+        <p className="ranked-row-meta">{Ago(article.created_at)} <ViewCount n={article.views}/></p>
       </div>
       {img&&<div style={{width:56,height:42,borderRadius:4,overflow:"hidden",flexShrink:0,position:"relative"}}>
         {img.startsWith("/api/")

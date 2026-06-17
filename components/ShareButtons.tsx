@@ -16,23 +16,14 @@ export default function ShareButtons({ url, title }: { url: string; title: strin
   }
 
   return (
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
+    <div className="share-row">
       {buttons.map(b => (
         <a key={b.label} href={b.href} target="_blank" rel="noopener noreferrer"
-          style={{
-            padding: "6px 12px", borderRadius: 3, fontSize: 10, fontWeight: 600,
-            fontFamily: "var(--mono)", letterSpacing: ".06em",
-            background: b.bg, color: "#fff", display: "inline-block",
-          }}>
+          className="share-btn" style={{ background: b.bg }}>
           {b.label}
         </a>
       ))}
-      <button onClick={copyLink}
-        style={{
-          padding: "6px 12px", borderRadius: 3, fontSize: 10, fontWeight: 600,
-          fontFamily: "var(--mono)", letterSpacing: ".06em",
-          background: "var(--ground2)", color: "var(--muted)", border: "1px solid var(--rule)", cursor: "pointer",
-        }}>
+      <button onClick={copyLink} className="share-copy">
         Link Kopyala
       </button>
     </div>

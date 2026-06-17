@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 interface Article { title: string; meta: string; category: string; slug: string; image_path: string | null; }
 
 const CATS: Record<string, { l: string; c: string }> = {
-  kripto:{l:"KRİPTO",c:"#f7931a"},borsa:{l:"BORSA",c:"#16a34a"},
-  döviz:{l:"DÖVİZ",c:"#2563eb"},altın:{l:"ALTIN",c:"#e8a000"},ekonomi:{l:"EKONOMİ",c:"#7c3aed"},
+  kripto:{l:"KRİPTO",c:"#d97706"},borsa:{l:"BORSA",c:"#16a34a"},
+  doviz:{l:"DÖVİZ",c:"#2563eb"},altin:{l:"ALTIN",c:"#b45309"},ekonomi:{l:"EKONOMİ",c:"#7c3aed"},
 };
 
 export default function Search() {
@@ -60,33 +60,34 @@ export default function Search() {
   return (
     <div className="search-overlay" onClick={close}>
       <div className="search-box" onClick={e => e.stopPropagation()}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "0 22px" }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#bbb" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <div className="search-input-wrap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input
             ref={inputRef} className="search-input" placeholder="Haber ara..."
             value={q} onChange={e => setQ(e.target.value)}
           />
-          {q && <button onClick={() => setQ("")} style={{ background: "none", border: "none", cursor: "pointer", color: "#bbb", fontSize: 18 }}>×</button>}
+          {q && <button onClick={() => setQ("")} className="search-clear">×</button>}
         </div>
         <div className="search-divider" />
         <div className="search-results">
           {q.trim().length < 2 && (
             <div className="search-empty">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ddd" strokeWidth="1.5" strokeLinecap="round" style={{ margin: "0 auto 8px", display: "block" }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <svg className="search-empty-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
               Aramak istediğini yaz
             </div>
           )}
           {q.trim().length >= 2 && results.length === 0 && (
-            <div className="search-empty">"{q}" için sonuç bulunamadı</div>
+            <div className="search-empty">&ldquo;{q}&rdquo; için sonuç bulunamadı</div>
           )}
           {results.map((a, i) => {
             const cat = CATS[a.category];
             const imgUrl = a.image_path ? `/api/gorsel?p=${encodeURIComponent(a.image_path.replace(/^.*gelecekfinans-bot\//, ""))}` : null;
             return (
-              <div key={a.slug} className="search-result" style={{ background: i === idx ? "#f5f3ee" : undefined }} onClick={() => go(a.slug)}>
+              <div key={a.slug} className={`search-result${i === idx ? " active" : ""}`} onClick={() => go(a.slug)}>
                 {imgUrl
                   ? <img src={imgUrl} alt="" className="search-result-img" />
-                  : <div className="search-result-img" style={{ borderRadius: 6 }} />}
+                  : <div className="search-result-img" style={{ borderRadius: 6 }} />
+                }
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {cat && <span className="search-result-cat" style={{ color: cat.c }}>{cat.l}</span>}
                   <p className="search-result-title">{a.title}</p>

@@ -17,28 +17,28 @@ export const CATEGORIES: Record<string, string[]> = {
   ekonomi: ["faiz", "enflasyon", "merkez bankası", "tcmb", "büyüme", "fed"],
 };
 
-export const ARTICLE_WORDS = 1000;
-export const ARTICLE_MIN_WORDS = 600;
+export const ARTICLE_WORDS = 600;
+export const ARTICLE_MIN_WORDS = 400;
 
 export const CATEGORY_PROMPTS: Record<string, { system_extra: string; structure: string }> = {
   kripto: {
-    system_extra: "Kripto para piyasalarında teknik analiz, blockchain teknolojisi ve DeFi konularında uzmansın. Fiyat seviyeleri, piyasa değeri ve hacim verisi kullan. Türk kripto yatırımcısının perspektifinden yaz.",
-    structure: "Piyasa Durumu → Teknik Görünüm → Temel Sürücüler → Türk Yatırımcıya Etki → Öngörü",
+    system_extra: "Kripto para piyasalarında blockchain teknolojisi, DeFi ve regülasyon konularında uzmansın. Güncel piyasa değeri ve hacim verisi kullan. Türk yatırımcının perspektifinden yaz. Fiyat tahmini veya hedef verme.",
+    structure: "Piyasa Durumu → Güncel Gelişmeler → Temel Sürücüler → Türkiye'deki Etkiler → Değerlendirme",
   },
   borsa: {
-    system_extra: "BIST ve küresel borsalarda hisse senedi analizi, bilanço okuma ve sektör karşılaştırmasında uzmansın. BIST endeks seviyeleri, yabancı yatırımcı hareketleri ve sektörel rotasyonu analiz et.",
-    structure: "Borsa Görünümü → Teknik Analiz → Sektörel Değerlendirme → Kurumsal Yatırımcı Hareketi → Strateji",
+    system_extra: "BIST ve küresel borsalarda sektör analizi, bilanço okuma ve makro değerlendirmede uzmansın. Endeks seviyelerini ve yabancı yatırımcı hareketlerini aktar ama al-sat tavsiyesi verme.",
+    structure: "Borsa Görünümü → Sektörel Değerlendirme → Yabancı Yatırımcı Hareketi → Makro Etkenler → Genel Değerlendirme",
   },
   doviz: {
-    system_extra: "Forex piyasaları, merkez bankası politikaları ve TL kur dinamiklerinde uzmansın. TCMB kararları, cari açık, rezerv ve faiz farkını birlikte değerlendir.",
-    structure: "Kur Tablosu → Teknik Seviyeler → TCMB Politikası → Küresel Dolar Endeksi → TL Beklentisi",
+    system_extra: "Merkez bankası politikaları ve TL kur dinamiklerinde uzmansın. TCMB kararları, cari açık, rezerv ve faiz farkını birlikte değerlendir. Kur tahmini veya hedef seviye verme.",
+    structure: "Güncel Kur Tablosu → TCMB Politikası → Küresel Gelişmeler → TL Üzerindeki Etkiler → Değerlendirme",
   },
   altin: {
-    system_extra: "Kıymetli madenler piyasasında gram altın, ons altın ve TL bazlı fiyatlama konusunda uzmansın. Fed faiz beklentisi, jeopolitik risk ve enflasyonu birlikte değerlendir.",
-    structure: "Altın Fiyatı → Küresel Sürücüler → Fed & Enflasyon Bağlantısı → Gram Altın TL Analizi → Yatırım Perspektifi",
+    system_extra: "Kıymetli madenler piyasasında gram altın, ons altın ve TL bazlı fiyatlama konusunda uzmansın. Fed faiz beklentisi, jeopolitik risk ve enflasyonu birlikte değerlendir. Fiyat hedefi verme.",
+    structure: "Güncel Altın Fiyatı → Küresel Sürücüler → Fed & Enflasyon Bağlantısı → Gram Altın TL Değerlendirmesi → Genel Bakış",
   },
   ekonomi: {
     system_extra: "Türkiye ve küresel makroekonomide enflasyon, faiz, büyüme ve işsizlik verilerini yorumlamada uzmansın. TÜİK ve TCMB verilerini, IMF ve Dünya Bankası projeksiyonlarıyla karşılaştır.",
-    structure: "Mevcut Ekonomik Tablo → Veri Analizi → Politika Değerlendirmesi → Küresel Karşılaştırma → Öngörü",
+    structure: "Mevcut Ekonomik Tablo → Veri Analizi → Politika Değerlendirmesi → Küresel Karşılaştırma → Değerlendirme",
   },
 };

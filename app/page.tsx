@@ -8,9 +8,9 @@ export const revalidate = 300;
 export default async function HomePage() {
   const all = await getAllArticles();
   if (!all.length) return (
-    <div style={{textAlign:"center",padding:"140px 28px"}}>
-      <p style={{fontFamily:"var(--display)",fontSize:32,fontWeight:700,color:"var(--ink)",marginBottom:12}}>Henüz makale yok</p>
-      <p style={{fontSize:15,color:"var(--muted)",fontFamily:"var(--sans)"}}>
+    <div className="container empty-state">
+      <p className="empty-title">Henüz makale yok</p>
+      <p className="empty-desc">
         Admin panelinden makale ürettikten sonra burada görünecek.
       </p>
     </div>
@@ -26,7 +26,7 @@ export default async function HomePage() {
   })).filter(g=>g.items.length>=2);
 
   return (
-    <div style={{maxWidth:1320,margin:"0 auto",padding:"0 28px 80px"}}>
+    <div className="container page-home">
 
       <div className="home-hero-grid">
         <div>
@@ -44,7 +44,7 @@ export default async function HomePage() {
       </div>
 
       {recent.length>0&&(
-        <section>
+        <section className="section">
           <div className="sec-rule">
             <span className="sec-rule-label" style={{color:"var(--ink)"}}>Son Haberler</span>
             <div className="sec-rule-line"/>
@@ -55,12 +55,12 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section style={{margin:"48px 0"}}>
+      <section className="section">
         <Newsletter />
       </section>
 
-      {byCat.map(({cat,cfg,items})=>(
-        <section key={cat}>
+      {byCat.map(({cat,cfg,items})=> (
+        <section key={cat} className="section">
           <div className="sec-rule">
             <span className="sec-rule-label" style={{color:cfg.c}}>{cfg.l}</span>
             <div className="sec-rule-line"/>

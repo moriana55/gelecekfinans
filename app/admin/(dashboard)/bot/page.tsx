@@ -85,237 +85,83 @@ export default function BotPage() {
     }
   };
 
-  if (loading) return <p style={{ color: "#555" }}>Yükleniyor...</p>;
+  if (loading) return <p style={{ color: "#999" }}>Yükleniyor...</p>;
 
   return (
     <div>
-      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24 }}>Makale Botu</h1>
+      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24, color: "#111" }}>Makale Botu</h1>
 
-      <div
-        style={{
-          background: "#151515",
-          border: "1px solid #222",
-          borderRadius: 8,
-          padding: 20,
-          marginBottom: 24,
-        }}
-      >
-        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#ddd" }}>
-          Makale Üret
-        </h2>
+      <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 10, padding: 20, marginBottom: 24 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#333" }}>Makale Üret</h2>
         <div style={{ display: "flex", gap: 12, alignItems: "flex-end", flexWrap: "wrap" }}>
           <div>
-            <label style={{ fontSize: 11, color: "#666", display: "block", marginBottom: 4 }}>
-              Kategori
-            </label>
-            <select
-              value={category}
-              onChange={(e) => loadTopics(e.target.value)}
-              style={{
-                background: "#222",
-                color: "#ddd",
-                border: "1px solid #333",
-                borderRadius: 6,
-                padding: "8px 12px",
-                fontSize: 13,
-              }}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
-                </option>
-              ))}
+            <label style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>Kategori</label>
+            <select value={category} onChange={(e) => loadTopics(e.target.value)}
+              style={{ background: "#fafafa", color: "#333", border: "1px solid #ddd", borderRadius: 6, padding: "8px 12px", fontSize: 13 }}>
+              {CATEGORIES.map((c) => (<option key={c.value} value={c.value}>{c.label}</option>))}
             </select>
           </div>
-
           <div>
-            <label style={{ fontSize: 11, color: "#666", display: "block", marginBottom: 4 }}>
-              Adet
-            </label>
-            <select
-              value={count}
-              onChange={(e) => setCount(Number(e.target.value))}
-              style={{
-                background: "#222",
-                color: "#ddd",
-                border: "1px solid #333",
-                borderRadius: 6,
-                padding: "8px 12px",
-                fontSize: 13,
-              }}
-            >
-              {[1, 2, 3, 5, 10].map((n) => (
-                <option key={n} value={n}>
-                  {n} makale
-                </option>
-              ))}
+            <label style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>Adet</label>
+            <select value={count} onChange={(e) => setCount(Number(e.target.value))}
+              style={{ background: "#fafafa", color: "#333", border: "1px solid #ddd", borderRadius: 6, padding: "8px 12px", fontSize: 13 }}>
+              {[1, 2, 3, 5, 10].map((n) => (<option key={n} value={n}>{n} makale</option>))}
             </select>
           </div>
-
-          <button
-            onClick={generate}
-            disabled={generating}
-            style={{
-              background: generating ? "#333" : "#4ade80",
-              color: generating ? "#666" : "#000",
-              border: "none",
-              borderRadius: 6,
-              padding: "10px 24px",
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: generating ? "not-allowed" : "pointer",
-            }}
-          >
+          <button onClick={generate} disabled={generating}
+            style={{ background: generating ? "#e5e5e5" : "#c73030", color: generating ? "#999" : "#fff", border: "none", borderRadius: 6, padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: generating ? "not-allowed" : "pointer" }}>
             {generating ? "Üretiliyor..." : "Makale Üret"}
           </button>
         </div>
-
         {result && (
-          <div
-            style={{
-              marginTop: 16,
-              padding: "10px 14px",
-              background: "#222",
-              borderRadius: 6,
-              fontSize: 13,
-              color: result.startsWith("Hata") ? "#f87171" : "#4ade80",
-            }}
-          >
+          <div style={{ marginTop: 16, padding: "10px 14px", background: "#fafafa", borderRadius: 6, fontSize: 13, color: result.startsWith("Hata") ? "#dc2626" : "#16a34a" }}>
             {result}
           </div>
         )}
       </div>
 
-      <div
-        style={{
-          background: "#151515",
-          border: "1px solid #222",
-          borderRadius: 8,
-          padding: 20,
-          marginBottom: 24,
-        }}
-      >
-        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#ddd" }}>
-          Güncel Konular ({topics.length})
-        </h2>
+      <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 10, padding: 20, marginBottom: 24 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#333" }}>Güncel Konular ({topics.length})</h2>
         {topics.length === 0 ? (
-          <p style={{ color: "#555", fontSize: 13 }}>Konu bulunamadı</p>
+          <p style={{ color: "#999", fontSize: 13 }}>Konu bulunamadı</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {topics.slice(0, 15).map((t, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "10px 14px",
-                  background: "#1a1a1a",
-                  borderRadius: 6,
-                  gap: 12,
-                }}
-              >
+              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#fafafa", borderRadius: 6, gap: 12 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: "#ddd",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {t.title}
-                  </p>
-                  <p style={{ fontSize: 11, color: "#666", marginTop: 2 }}>{t.source}</p>
+                  <p style={{ fontSize: 13, color: "#333", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.title}</p>
+                  <p style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{t.source}</p>
                 </div>
-                <span
-                  style={{
-                    fontSize: 10,
-                    padding: "3px 8px",
-                    borderRadius: 4,
-                    background: "#222",
-                    color: "#888",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {t.category}
-                </span>
+                <span style={{ fontSize: 10, padding: "3px 8px", borderRadius: 4, background: "#e5e5e5", color: "#666", whiteSpace: "nowrap" }}>{t.category}</span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      <div
-        style={{
-          background: "#151515",
-          border: "1px solid #222",
-          borderRadius: 8,
-          padding: 20,
-        }}
-      >
-        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#ddd" }}>
-          Çalışma Geçmişi
-        </h2>
+      <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 10, padding: 20 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#333" }}>Çalışma Geçmişi</h2>
         {runs.length === 0 ? (
-          <p style={{ color: "#555", fontSize: 13 }}>Henüz çalışma yok</p>
+          <p style={{ color: "#999", fontSize: 13 }}>Henüz çalışma yok</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {runs.map((r) => (
-              <div
-                key={r.id}
-                style={{
-                  background: "#1a1a1a",
-                  border: "1px solid #222",
-                  borderRadius: 8,
-                  padding: 16,
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 12,
-                  }}
-                >
-                  <span style={{ fontSize: 13, color: "#ddd" }}>
-                    {new Date(r.startedAt).toLocaleString("tr-TR")}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      padding: "4px 8px",
-                      borderRadius: 4,
-                      background:
-                        r.status === "completed" ? "#4ade8011" : "#fbbf2411",
-                      color: r.status === "completed" ? "#4ade80" : "#fbbf24",
-                    }}
-                  >
+              <div key={r.id} style={{ background: "#fafafa", border: "1px solid #e5e5e5", borderRadius: 10, padding: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <span style={{ fontSize: 13, color: "#333" }}>{new Date(r.startedAt).toLocaleString("tr-TR")}</span>
+                  <span style={{ fontSize: 11, padding: "4px 8px", borderRadius: 4, background: r.status === "completed" ? "#f0fdf4" : "#fffbeb", color: r.status === "completed" ? "#16a34a" : "#d97706" }}>
                     {r.status}
                   </span>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
                   <Stat label="Bulunan" value={r.articlesFound} />
-                  <Stat label="Eklenen" value={r.articlesAdded} color="#4ade80" />
-                  <Stat label="Duplicate" value={r.duplicatesSkipped} color="#fbbf24" />
+                  <Stat label="Eklenen" value={r.articlesAdded} color="#16a34a" />
+                  <Stat label="Duplicate" value={r.duplicatesSkipped} color="#d97706" />
                 </div>
                 {r.errors && (
                   <details style={{ marginTop: 12 }}>
-                    <summary style={{ fontSize: 11, color: "#f87171", cursor: "pointer" }}>
-                      Hatalar
-                    </summary>
-                    <pre
-                      style={{
-                        fontSize: 11,
-                        color: "#f87171",
-                        marginTop: 8,
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {r.errors}
-                    </pre>
+                    <summary style={{ fontSize: 11, color: "#dc2626", cursor: "pointer" }}>Hatalar</summary>
+                    <pre style={{ fontSize: 11, color: "#dc2626", marginTop: 8, whiteSpace: "pre-wrap" }}>{r.errors}</pre>
                   </details>
                 )}
               </div>
@@ -330,8 +176,8 @@ export default function BotPage() {
 function Stat({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
     <div>
-      <p style={{ fontSize: 10, color: "#555" }}>{label}</p>
-      <p style={{ fontSize: 20, fontWeight: 700, color: color || "#ddd" }}>{value}</p>
+      <p style={{ fontSize: 10, color: "#999" }}>{label}</p>
+      <p style={{ fontSize: 20, fontWeight: 700, color: color || "#333" }}>{value}</p>
     </div>
   );
 }

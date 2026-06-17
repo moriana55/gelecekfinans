@@ -4,41 +4,106 @@ import type { Topic } from "./topics";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+let _cachedPrices: { data: string; ts: number } | null = null;
+
+async function getLivePrices(): Promise<string> {
+  if (_cachedPrices && Date.now() - _cachedPrices.ts < 10 * 60 * 1000) return _cachedPrices.data;
+  try {
+    const [tcmbRes, btcRes] = await Promise.all([
+      fetch("https://www.tcmb.gov.tr/kurlar/today.xml").then(r => r.text()),
+      fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd,try").then(r => r.json()),
+    ]);
+    const { XMLParser } = require("fast-xml-parser");
+    const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
+    const xml = parser.parse(tcmbRes);
+    const kurlar = xml?.Tarih_Date?.Currency || [];
+    const find = (code: string) => {
+      const k = kurlar.find((c: Record<string, string>) => c["@_CurrencyCode"] === code);
+      return k ? parseFloat(k.ForexSelling) : null;
+    };
+    const usd = find("USD");
+    const eur = find("EUR");
+    const btcUsd = btcRes?.bitcoin?.usd;
+    const btcTry = btcRes?.bitcoin?.try;
+    const ethUsd = btcRes?.ethereum?.usd;
+    let goldOzUsd = 2400;
+    try {
+      const goldRes = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=1d");
+      const goldData = await goldRes.json();
+      const goldPrice = goldData?.chart?.result?.[0]?.meta?.regularMarketPrice;
+      if (goldPrice) goldOzUsd = goldPrice;
+    } catch {}
+    const goldGramTry = usd ? Math.round((goldOzUsd / 31.1035) * usd) : null;
+
+    const lines = [
+      `Tarih: ${new Date().toLocaleDateString("tr-TR")}`,
+      usd ? `Dolar/TL: ${usd.toFixed(2)}` : null,
+      eur ? `Euro/TL: ${eur.toFixed(2)}` : null,
+      btcUsd ? `Bitcoin: $${btcUsd.toLocaleString("en-US")} (₺${Math.round(btcTry).toLocaleString("tr-TR")})` : null,
+      ethUsd ? `Ethereum: $${ethUsd.toLocaleString("en-US")}` : null,
+      goldGramTry ? `Gram Altın (yaklaşık): ₺${goldGramTry.toLocaleString("tr-TR")}` : null,
+    ].filter(Boolean);
+    const txt = lines.join("\n");
+    _cachedPrices = { data: txt, ts: Date.now() };
+    return txt;
+  } catch {
+    return "Güncel fiyat verisi alınamadı.";
+  }
+}
+
 function countWords(text: string): number {
   return text.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length;
 }
 
-function buildPrompt(topic: Topic, targetWords: number): string {
+async function buildPrompt(topic: Topic, targetWords: number): Promise<string> {
   const extra = CATEGORY_PROMPTS[topic.category] || {};
   const struct = extra.structure || "Mevcut Durum → Analiz → Türkiye Etkisi → Öngörü";
+  const prices = await getLivePrices();
 
-  return `Konu ilhamı: ${topic.title}
-Arka plan: ${topic.summary}
+  return `HABERİ YAZ — Konu: ${topic.title}
+Kaynak özet: ${topic.summary}
 Kategori: ${topic.category}
-Hedef uzunluk: EN AZ ${targetWords} kelime (Dolu dolu ve detaylı yaz)
-Yazı yapısı: ${struct}
+Hedef uzunluk: EN AZ ${targetWords} kelime
 
-Şunu üret:
-1. SEO başlığı (55-62 karakter, anahtar kelime içersin)
-2. Meta description (150-160 karakter arası, merak uyandırıcı)
+⚠️ ÖNEMLİ: Bu bir HABER yazısıdır, ANALİZ DEĞİL. Piyasa analizi, teknik görünüm, destek/direnç YAZMA.
+Haberin odağı: KİM NE DEDİ, NE KARAR ALDI, NE AÇIKLADI — somut olay ve gelişmeleri yaz.
+
+GÜNCEL PİYASA VERİLERİ (referans olarak kullan, haberin ana konusu yapma):
+${prices}
+Kur/fiyat yazarken MUTLAKA yukarıdaki güncel verileri kullan, kafandan uydurma.
+
+HABER FORMATI:
+1. SEO başlığı (55-62 karakter) — "X şunu açıkladı", "Y kararı alındı" gibi haber başlığı
+2. Meta description (150-160 karakter, focus keyword içersin)
 3. Focus keyword (1-3 kelime)
-4. Makale içeriği (HTML yapısında H2 başlıkları ## ile, paragraflar)
+4. Haber içeriği:
+   - İlk paragraf: Haberin özeti (ne oldu, kim açıkladı, ne zaman)
+   - Detaylar: Kararın/gelişmenin arka planı ve önemi
+   - Türkiye etkisi: Bu gelişme Türkiye'yi nasıl etkiler
+   - Uzman/yetkili görüşleri veya resmi açıklamalar
+   - Geçmişle karşılaştırma: Daha önce benzer durumda ne olmuştu
 
-SEO 80+ PUAN KURALLARI (ZORUNLU):
-- En az 4 tane ## (H2) başlığı kullan.
-- Focus keyword'ü İLK PARAGRAFIN İLK CÜMLESİNDE mutlaka geçir.
-- Focus keyword'ü makale boyunca en az 5-6 kez doğal bir şekilde kullan.
-- Makale içine mutlaka bir adet MADDELEYEREK LİSTELEME (bullet points) bölümü ekle.
-- Makalenin sonuna mutlaka 2 soruluk bir "Sıkça Sorulan Sorular" (FAQ) bölümü ekle (## Sıkça Sorulan Sorular).
-- Makale içine en az 1 tane otorite kaynağa atıfta bulunarak DIŞ LİNK ekle.
+SEO KURALLARI:
+- En az 4 tane ## (H2) başlığı kullan
+- Focus keyword'ü ilk paragrafta ve meta description'da kullan
+- Makale içine madde listesi ekle
+- Sonuna 2 soruluk FAQ ekle (## Sıkça Sorulan Sorular)
 
-LİNKLEME KURALLARI:
-- Makale içinde uygun bir yere şu ifadeyi yerleştir: "[DAHILI_LINK]"
+DIŞ LİNK (ZORUNLU — en az 1 tane):
+- Gerçek URL kullan, placeholder YAZMA. Örnekler:
+  * [TCMB](https://www.tcmb.gov.tr)
+  * [TÜİK](https://www.tuik.gov.tr)
+  * [Bloomberg](https://www.bloomberg.com)
+  * [Reuters](https://www.reuters.com)
+- Format: [Görünen Metin](https://gercek-url.com)
 
-ÖNEMLİ — ÖZGÜNLÜK & GÜVENLİK:
-- ASLA kaynak metni kopyalama. Tamamen özgün ve derinlikli bir finansal analiz yaz.
-- SPK UYUMU: Kesinlikle yatırım tavsiyesi verme. Mesafeli ve bilgilendirici dil kullan.
-- Disclaimer'ı en sona eklemeyi unutma.
+İÇ LİNK: Uygun bir yere "[DAHILI_LINK]" yerleştir.
+
+YASAKLAR:
+- Piyasa analizi, teknik analiz, destek/direnç, fiyat hedefi YAZMA
+- Yatırım tavsiyesi verme, al-sat sinyali verme
+- Kaynak metni kopyalama, özgün yaz
+- Sonuna disclaimer ekle
 
 Format:
 BASLIK: ...
@@ -86,6 +151,7 @@ function mdToHtml(text: string): string {
 
 function inline(text: string): string {
   return text
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="nofollow noopener noreferrer">$1</a>')
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>");
 }
@@ -127,15 +193,28 @@ export async function writeArticle(
 }> {
   const catExtra = CATEGORY_PROMPTS[topic.category]?.system_extra || "";
 
-  const system = `Sen gelecekfinans.com için Türkçe SEO odaklı finans makaleleri yazan uzman bir finansal gazeteci ve analistsin.
-- Türkçe yaz, resmi ama akıcı ve anlaşılır dil kullan
+  const system = `Sen gelecekfinans.com için Türkçe finans HABERLERİ yazan deneyimli bir ekonomi muhabirisin.
+
+YAZIM TARZI:
+- Gazetecilik diliyle yaz — haber formatında, objektif, bilgilendirici
+- İlk paragrafta haberin özünü ver (5N1K: Ne oldu, kim açıkladı, ne zaman, neden önemli)
+- Haberi derinleştir: arka plan, bağlam, uzman/yetkili görüşleri, geçmişle karşılaştırma
 - H2 başlıkları kullan (## ile), en az 3 H2 bölümü olsun
-- İlk paragraf konuyu özgün bir çerçevelemeyle sun
-- Spesifik rakam, oran ve tarih kullan; bu verileri yorumla
-- Clickbait değil, derinlikli ve analitik ol
-- ÖZGÜN İÇERİK: Kaynak metinlerden hiçbir cümle veya ifade kopyalama
-- Türkiye finans piyasasına özgü perspektif ve yerel bağlam ekle
-- SPK UYUMLULUĞU: Yatırım tavsiyesi verme, fiyat hedefi belirtme. Nesnel, mesafeli ve bilgilendirici dil kullan. Her yazının sonuna disclaimer paragrafı ekle.
+- ÖZGÜN İÇERİK: Kaynak metinlerden cümle kopyalama, haberi kendi cümlelerinle yaz
+
+HABER ODAĞI:
+- Kim ne dedi, ne karar aldı, ne açıkladı — SOMUT OLAYLAR yaz
+- "TCMB faizi sabit tuttu", "Ekonomi Bakanı X ile görüştü", "Enflasyon %X açıklandı" gibi GERÇEK haberler
+- Soyut piyasa analizi YAPMA. "Dolar/TL'nin teknik görünümü" gibi analiz yazıları YAZMA.
+- Her haberde konunun Türkiye ekonomisine etkisini açıkla
+
+⛔ YASAKLAR (KESİNLİKLE UYULMASI GEREKEN):
+- ASLA yatırım tavsiyesi verme, fiyat hedefi verme, al-sat sinyali verme
+- ASLA destek/direnç seviyesi, teknik analiz, fiyat tahmini yazma
+- ASLA "yükselecek", "düşecek" gibi kesin tahmin yapma
+- "Teknik seviyeler", "teknik görünüm", "teknik analiz" başlığı AÇMA
+- Piyasa verilerini sadece MEVCUT DURUM olarak aktar, gelecek tahmini yapma
+- Her yazının sonuna disclaimer ekle: "Bu içerik yalnızca bilgilendirme amaçlıdır, yatırım tavsiyesi değildir."
 ${catExtra}`;
 
   let article: ReturnType<typeof parseResponse> & { wordCount: number } = null!;
@@ -143,15 +222,34 @@ ${catExtra}`;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     const wordsAsk = targetWords + attempt * 250;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: buildPrompt(topic, wordsAsk) },
-      ],
-      max_tokens: Math.min(6000, wordsAsk * 3),
-      temperature: 0.7,
-    });
+    let response;
+    try {
+      response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: await buildPrompt(topic, wordsAsk) },
+        ],
+        max_tokens: Math.min(6000, wordsAsk * 3),
+        temperature: 0.7,
+      });
+    } catch (e: unknown) {
+      const err = e as { status?: number; message?: string };
+      if (err.status === 429 || err.status === 503) {
+        await new Promise(r => setTimeout(r, 5000));
+        response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: system },
+            { role: "user", content: await buildPrompt(topic, wordsAsk) },
+          ],
+          max_tokens: Math.min(6000, wordsAsk * 3),
+          temperature: 0.7,
+        });
+      } else {
+        throw new Error(`OpenAI: ${err.status || "?"} — ${err.message || String(e)}`);
+      }
+    }
 
     const raw = response.choices[0].message.content?.trim() || "";
     const parsed = parseResponse(raw, topic);

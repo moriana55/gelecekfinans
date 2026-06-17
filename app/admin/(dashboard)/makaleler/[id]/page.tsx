@@ -11,7 +11,7 @@ interface SeoResult { score: number; issues: string[]; passed: string[]; }
 export default function EditArticle() {
   const { id } = useParams();
   const router = useRouter();
-  const [form, setForm] = useState({ title: "", meta: "", keyword: "", category: "", content: "", imageUrl: "", status: "" });
+  const [form, setForm] = useState({ title: "", meta: "", keyword: "", category: "", content: "", imageUrl: "", status: "", premium: false });
   const [seo, setSeo] = useState<SeoResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -21,7 +21,7 @@ export default function EditArticle() {
       .then(r => r.json())
       .then(d => {
         const a = d.article;
-        setForm({ title: a.title, meta: a.meta, keyword: a.keyword || "", category: a.category, content: a.content, imageUrl: a.imageUrl || "", status: a.status });
+        setForm({ title: a.title, meta: a.meta, keyword: a.keyword || "", category: a.category, content: a.content, imageUrl: a.imageUrl || "", status: a.status, premium: !!a.premium });
         setSeo(d.seo);
       })
       .finally(() => setLoading(false));
@@ -76,6 +76,11 @@ export default function EditArticle() {
         </div>
 
         <Field label="Görsel URL" value={form.imageUrl} onChange={v => setForm(f => ({ ...f, imageUrl: v }))} />
+
+        <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, cursor: "pointer" }}>
+          <input type="checkbox" checked={form.premium} onChange={e => setForm(f => ({ ...f, premium: e.target.checked }))} />
+          <span style={{ fontSize: 13, color: "#111" }}>Premium içerik (üye girişi gerektirir)</span>
+        </label>
 
         <label style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>İçerik</label>
         <EditorTabs content={form.content} onChange={v => setForm(f => ({ ...f, content: v }))} />

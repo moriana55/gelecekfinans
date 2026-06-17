@@ -3,4 +3,7 @@ export interface Article {
   content: string; image_path: string | null; source: string;
   created_at: string; slug: string; filename: string; wp_post_id?: number;
   imageUrl?: string | null;
+  views?: number;
+  updatedAt?: string;
+  premium?: boolean;
 }

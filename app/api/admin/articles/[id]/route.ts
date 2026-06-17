@@ -24,7 +24,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const body = await req.json();
 
-  const { title, meta, keyword, category, content, imageUrl, status } = body;
+  const { title, meta, keyword, category, content, imageUrl, status, premium } = body;
 
   const updateData: Record<string, unknown> = {};
   if (title !== undefined) updateData.title = title;
@@ -33,6 +33,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (category !== undefined) updateData.category = category;
   if (content !== undefined) updateData.content = content;
   if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+  if (premium !== undefined) updateData.premium = !!premium;
   if (status !== undefined) {
     updateData.status = status;
     if (status === "PUBLISHED") updateData.publishedAt = new Date();

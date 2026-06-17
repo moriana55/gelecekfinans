@@ -14,25 +14,14 @@ export default function BreakingNews() {
   if (!item || dismissed) return null;
 
   return (
-    <div style={{
-      background: "#dc2626", color: "#fff", padding: "8px 28px",
-      display: "flex", alignItems: "center", gap: 12, fontSize: 13,
-      fontFamily: "var(--sans)", fontWeight: 500,
-    }}>
-      <span style={{
-        fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700,
-        background: "rgba(255,255,255,.15)", color: "#fff", padding: "3px 8px",
-        borderRadius: 3, letterSpacing: ".08em", flexShrink: 0,
-      }}>
-        SON DAKİKA
-      </span>
+    <div className="breaking-bar">
+      <span className="breaking-badge">SON DAKİKA</span>
       {item.url ? (
-        <a href={item.url} style={{ color: "#fff", flex: 1 }}>{item.text}</a>
+        <a href={item.url} className="breaking-text">{item.text}</a>
       ) : (
-        <span style={{ flex: 1 }}>{item.text}</span>
+        <span className="breaking-text">{item.text}</span>
       )}
-      <button onClick={() => setDismissed(true)}
-        style={{ background: "none", border: "none", color: "rgba(255,255,255,.6)", cursor: "pointer", fontSize: 18, padding: "0 4px" }}>
+      <button onClick={() => setDismissed(true)} className="breaking-close">
         ×
       </button>
     </div>

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function Iletisim() {
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "60px 24px 100px" }}>
-      <h1 style={{ fontFamily: "var(--serif)", fontSize: 36, fontWeight: 900, marginBottom: 24 }}>İletişim</h1>
+      <h1 style={{ fontFamily: "var(--display)", fontSize: 36, fontWeight: 900, marginBottom: 24 }}>İletişim</h1>
       <div className="article-prose">
         <p>Bize aşağıdaki kanallardan ulaşabilirsiniz:</p>
         <p><strong>E-posta:</strong> <a href="mailto:iletisim@gelecekfinans.com" style={{ color: "var(--accent)" }}>iletisim@gelecekfinans.com</a></p>

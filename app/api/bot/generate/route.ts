@@ -8,6 +8,7 @@ import { isDuplicate } from "@/lib/duplicate";
 import { getTopics } from "@/lib/bot/topics";
 import { writeArticle } from "@/lib/bot/writer";
 import { fetchUnsplashImage } from "@/lib/bot/images";
+import { autoLink } from "@/lib/bot/linker";
 
 export const maxDuration = 120;
 
@@ -72,6 +73,9 @@ export async function POST(req: NextRequest) {
         duplicatesSkipped++;
         continue;
       }
+
+      const linkedContent = await autoLink(article.content, article.category, slug);
+      article.content = linkedContent;
 
       const seo = analyzeSeo({
         title: article.title, meta: article.meta,
