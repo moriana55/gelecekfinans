@@ -11,6 +11,15 @@ const CATS=[
   {k:"ekonomi",l:"Ekonomi"},
 ];
 
+// Canlı piyasa verisi & araç sayfaları
+const MARKET=[
+  {h:"/doviz",l:"Döviz Kurları"},
+  {h:"/altin",l:"Altın Fiyatları"},
+  {h:"/kripto",l:"Kripto Fiyatları"},
+  {h:"/faiz",l:"Faiz"},
+  {h:"/araclar",l:"Araçlar"},
+];
+
 export default function Navbar(){
   const p=usePathname();
   return(
@@ -26,6 +35,9 @@ export default function Navbar(){
         <Link href="/" className={`nav-cat${p==="/"?" act":""}`}>Tüm Haberler</Link>
         {CATS.map(c=> (
           <Link key={c.k} href={`/kategori/${c.k}`} className={`nav-cat${p===`/kategori/${c.k}`?" act":""}`}>{c.l}</Link>
+        ))}
+        {MARKET.map(m=> (
+          <Link key={m.h} href={m.h} className={`nav-cat nav-cat-market${p===m.h||p.startsWith(m.h+"/")?" act":""}`}>{m.l}</Link>
         ))}
       </div>
     </div>

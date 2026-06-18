@@ -1,0 +1,97 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { REFERENCE_RATES, safeRelatedArticles } from "@/lib/market";
+import { MedCard } from "@/components/ArticleCard";
+import AdSlot from "@/components/AdSlot";
+import DepositCalculator from "@/components/calculators/DepositCalculator";
+
+export const revalidate = 3600;
+const BASE = "https://gelecekfinans.com";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const title = "Faiz Oranları — TCMB Politika Faizi ve Güncel Faizler";
+  const description =
+    "Güncel faiz oranları: TCMB politika faizi, gecelik borçlanma ve borç verme faizleri. Mevduat faizi hesaplayıcı ve faiz haberleri.";
+  return {
+    title,
+    description,
+    alternates: { canonical: `${BASE}/faiz` },
+    openGraph: { type: "website", url: `${BASE}/faiz`, title, description, siteName: "GelecekFinans" },
+    twitter: { card: "summary_large_image", title, description },
+  };
+}
+
+export default async function FaizPage() {
+  const related = await safeRelatedArticles("ekonomi");
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        name: "Faiz Oranları",
+        description: "TCMB politika faizi ve güncel faiz oranları.",
+        url: `${BASE}/faiz`,
+        isPartOf: { "@type": "WebSite", name: "GelecekFinans", url: BASE },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Ana Sayfa", item: BASE },
+          { "@type": "ListItem", position: 2, name: "Faiz Oranları", item: `${BASE}/faiz` },
+        ],
+      },
+    ],
+  };
+
+  return (
+    <div className="container market-page">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <nav className="crumbs" aria-label="Breadcrumb">
+        <Link href="/">Ana Sayfa</Link> <span>/</span> <span>Faiz</span>
+      </nav>
+      <h1 className="page-header">Faiz Oranları</h1>
+      <p className="market-lede">
+        TCMB politika faizi ve güncel referans faiz oranları. Veriler {REFERENCE_RATES.asOf} dönemine ait referans
+        değerlerdir; en güncel oranlar için TCMB duyurularını esas alın.
+      </p>
+
+      <div className="market-grid">
+        {REFERENCE_RATES.rates.map((r) => (
+          <div key={r.label} className="market-card market-card-static">
+            <div className="market-card-name">{r.label}</div>
+            <div className="market-card-price">%{r.value.toLocaleString("tr-TR")}</div>
+            <p className="market-card-desc">{r.desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <AdSlot position="inArticle" />
+
+      <section className="section">
+        <h2 className="market-h2">Mevduat Faizi Hesaplayıcı</h2>
+        <DepositCalculator />
+      </section>
+
+      <section className="section market-links">
+        <h2 className="market-h2">İlgili Sayfalar</h2>
+        <div className="market-chips">
+          <Link href="/doviz" className="market-chip">Döviz Kurları</Link>
+          <Link href="/altin" className="market-chip">Altın Fiyatları</Link>
+          <Link href="/araclar/kredi-faiz-hesaplama" className="market-chip">Kredi Faiz Hesaplama</Link>
+          <Link href="/araclar/enflasyon-hesaplama" className="market-chip">Enflasyon Hesaplama</Link>
+          <Link href="/kategori/ekonomi" className="market-chip">Ekonomi Haberleri</Link>
+        </div>
+      </section>
+
+      {related.length > 0 && (
+        <section className="section">
+          <h2 className="market-h2">Ekonomi Haberleri</h2>
+          <div className="resp-grid-4">
+            {related.map((a) => <MedCard key={a.filename} article={a} />)}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
