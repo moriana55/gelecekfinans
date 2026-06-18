@@ -1,7 +1,7 @@
 import { getAllArticles } from "@/lib/articles";
 import { HeroCard, StripCard, MedCard, RankedCard, CATS, Ago } from "@/components/ArticleCard";
 import Newsletter from "@/components/Newsletter";
-import MarketBoard from "@/components/MarketBoard";
+import MarketMini from "@/components/MarketMini";
 import MoversRail from "@/components/MoversRail";
 import AdSlot from "@/components/AdSlot";
 import Link from "next/link";
@@ -38,12 +38,14 @@ export default async function HomePage() {
   })).filter(g=>g.items.length>=2);
 
   return (
-    <div className="container page-home">
+    <div className="container page-home" style={{ paddingTop: 28 }}>
 
-      {/* ── CANLI PİYASA TABLOSU (Doviz/Investing tarzı, sayfanın üstünde) ── */}
-      <MarketBoard />
+      {/* ── HABER LİDER (CNBC/Reuters tarzı): sayfanın üstünü HABER yönetir.
+           Üstteki dev "CANLI PİYASA" board'u kaldırıldı (slim top ticker +
+           sağ raydaki kompakt MarketMini widget'ı ile mükerrerdi). Piyasa
+           verisi artık ikincil; haber lider.
 
-      {/* ── HABER HİYERARŞİSİ: lider + ikincil + sağ ray ──
+           HABER HİYERARŞİSİ: lider + ikincil + sağ ray ──
            Tüm yerleşim/boşluk INLINE STYLE ile verilir (Tailwind utility üretimi
            bu projede güvenilmez → gap/padding sınıfları render'a yansımıyordu).
            Responsive kırılım .home-split-* sınıfları üzerinden globals.css'te. */}
@@ -107,6 +109,9 @@ export default async function HomePage() {
         </div>
 
         <aside className="home-rail" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* Kompakt "Piyasalar" widget'ı — dev board'un yerini alan, açıkça
+              ikincil/küçük piyasa görünümü (USD/TRY, EUR/TRY, Gram Altın, BTC, BIST). */}
+          <MarketMini />
           <div style={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--bg)", boxShadow: "0 1px 2px rgba(15,23,42,.05)", padding: "16px 18px 8px" }}>
             <div style={{ paddingBottom: 12, marginBottom: 4, borderBottom: "1px solid var(--border2)", fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>
               En Çok Okunan
