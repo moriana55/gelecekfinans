@@ -29,14 +29,9 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   title: { default: "GelecekFinans — Finans & Ekonomi Haberleri", template: "%s | GelecekFinans" },
   description: "Borsa, döviz, kripto para, altın ve ekonomi alanında güncel haberler ve analizler.",
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "48x48" },
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-192.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: "/apple-touch-icon.png",
-  },
+  // İkonlar dosya tabanlı convention ile sunulur: app/icon.svg (favicon) ve
+  // app/apple-icon.tsx (apple touch). Next bunları otomatik olarak <head>'e
+  // ekler; bu yüzden burada açık `icons` tanımı yok (icon.svg öncelikli).
   robots: { index: true, follow: true },
   metadataBase: new URL(BASE),
   alternates: { types: { "application/rss+xml": "/feed.xml" } },

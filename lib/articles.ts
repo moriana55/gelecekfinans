@@ -3,12 +3,81 @@ import type { Article } from "./types";
 
 export type { Article } from "./types";
 
+/**
+ * `premium` kolonu henüz veritabanına eklenmemiş olabilir (owner `prisma db push`
+ * çalıştırmadan önce). Bu durumda Prisma "column does not exist" hatası fırlatır.
+ * Bu kontrol, hatanın eksik `premium` kolonundan kaynaklanıp kaynaklanmadığını
+ * tespit eder; öyleyse sorguyu `premium` olmadan tekrar deneriz (premium:false).
+ * Kolon mevcutsa davranış hiç değişmez.
+ */
+function isMissingPremiumColumn(err: unknown): boolean {
+  const msg =
+    err && typeof err === "object" && "message" in err
+      ? String((err as { message?: unknown }).message ?? "")
+      : String(err);
+  // Prisma P2022 (column does not exist) veya genel "premium" sütun hatası.
+  const code =
+    err && typeof err === "object" && "code" in err
+      ? String((err as { code?: unknown }).code ?? "")
+      : "";
+  return (
+    code === "P2022" ||
+    (/premium/i.test(msg) &&
+      /(column|does not exist|undefined column|no such column|unknown column)/i.test(
+        msg
+      ))
+  );
+}
+
 export async function getAllArticles(limit = 200): Promise<Article[]> {
-  const rows = await prisma.article.findMany({
-    where: { status: "PUBLISHED" },
-    orderBy: { publishedAt: "desc" },
+  let rows: Array<{
+    title: string;
+    meta: string;
+    keyword: string | null;
+    category: string;
+    content: string;
+    source: string | null;
+    publishedAt: Date | null;
+    createdAt: Date;
+    slug: string;
+    id: string;
+    imageUrl: string | null;
+    updatedAt: Date;
+    premium?: boolean;
+  }>;
+  const baseQuery = {
+    where: { status: "PUBLISHED" as const },
+    orderBy: { publishedAt: "desc" as const },
     take: limit,
-  });
+  };
+  try {
+    rows = await prisma.article.findMany(baseQuery);
+  } catch (err) {
+    if (!isMissingPremiumColumn(err)) {
+      // `premium` ile ilgisiz gerçek bir hata: sayfayı çökertmek yerine
+      // degrade ederek boş liste döndür (homepage temiz boş durum gösterir).
+      console.error("[getAllArticles] sorgu başarısız:", err);
+      return [];
+    }
+    // `premium` kolonu yok: kolonu hariç tutarak yeniden dene.
+    rows = await prisma.article.findMany({
+      ...baseQuery,
+      select: {
+        title: true,
+        meta: true,
+        keyword: true,
+        category: true,
+        content: true,
+        source: true,
+        publishedAt: true,
+        createdAt: true,
+        slug: true,
+        id: true,
+        imageUrl: true,
+        updatedAt: true,
+      },
+    });
+  }
 
   const slugs = rows.map((r) => `/${r.slug}`);
   const viewCounts = slugs.length > 0
@@ -34,14 +103,56 @@ export async function getAllArticles(limit = 200): Promise<Article[]> {
     imageUrl: r.imageUrl,
     views: viewMap.get(`/${r.slug}`) || 0,
     updatedAt: r.updatedAt.toISOString(),
-    premium: r.premium,
+    // Kolon yokken `premium` undefined gelir; default(false) semantiğiyle uyumlu.
+    premium: r.premium ?? false,
   }));
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
-  const r = await prisma.article.findFirst({
-    where: { slug, status: "PUBLISHED" },
-  });
+  const baseQuery = { where: { slug, status: "PUBLISHED" as const } };
+  let r:
+    | {
+        title: string;
+        meta: string;
+        keyword: string | null;
+        category: string;
+        content: string;
+        source: string | null;
+        publishedAt: Date | null;
+        createdAt: Date;
+        slug: string;
+        id: string;
+        imageUrl: string | null;
+        updatedAt: Date;
+        premium?: boolean;
+      }
+    | null;
+  try {
+    r = await prisma.article.findFirst(baseQuery);
+  } catch (err) {
+    if (!isMissingPremiumColumn(err)) {
+      console.error("[getArticleBySlug] sorgu başarısız:", err);
+      return null;
+    }
+    // `premium` kolonu yok: kolonu hariç tutarak yeniden dene.
+    r = await prisma.article.findFirst({
+      ...baseQuery,
+      select: {
+        title: true,
+        meta: true,
+        keyword: true,
+        category: true,
+        content: true,
+        source: true,
+        publishedAt: true,
+        createdAt: true,
+        slug: true,
+        id: true,
+        imageUrl: true,
+        updatedAt: true,
+      },
+    });
+  }
   if (!r) return null;
   return {
     title: r.title,
@@ -56,7 +167,8 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     filename: r.id,
     imageUrl: r.imageUrl,
     updatedAt: r.updatedAt.toISOString(),
-    premium: r.premium,
+    // Kolon yokken `premium` undefined gelir; default(false) semantiğiyle uyumlu.
+    premium: r.premium ?? false,
   };
 }
 
