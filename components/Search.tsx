@@ -6,7 +6,7 @@ interface Article { title: string; meta: string; category: string; slug: string;
 
 const CATS: Record<string, { l: string; c: string }> = {
   kripto:{l:"KRİPTO",c:"#d97706"},borsa:{l:"BORSA",c:"#16a34a"},
-  doviz:{l:"DÖVİZ",c:"#2563eb"},altin:{l:"ALTIN",c:"#b45309"},ekonomi:{l:"EKONOMİ",c:"#7c3aed"},
+  doviz:{l:"DÖVİZ",c:"#2563eb"},altin:{l:"ALTIN",c:"#b45309"},ekonomi:{l:"EKONOMİ",c:"#475569"},
 };
 
 export default function Search() {

@@ -130,7 +130,7 @@ export default function ArticleList() {
                   {a.duplicateOf && <span style={{ marginLeft: 8, fontSize: 10, color: "#dc2626" }}>DUP</span>}
                 </td>
                 <td style={{ color: "#888" }}>{a.category}</td>
-                <td style={{ color: a.articleSource === "BOT" ? "#2563eb" : "#7c3aed", fontSize: 10 }}>{a.articleSource === "BOT" ? "Otomatik" : "Manuel"}</td>
+                <td style={{ color: a.articleSource === "BOT" ? "#2563eb" : "#475569", fontSize: 10 }}>{a.articleSource === "BOT" ? "Otomatik" : "Manuel"}</td>
                 <td>
                   <span style={{ color: (a.seoScore || 0) >= 70 ? "#16a34a" : (a.seoScore || 0) >= 60 ? "#d97706" : "#dc2626" }}>
                     {a.seoScore ?? "-"}

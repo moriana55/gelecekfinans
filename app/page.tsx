@@ -44,41 +44,53 @@ export default async function HomePage() {
       <MarketBoard />
 
       {/* ── HABER HİYERARŞİSİ: lider + ikincil + sağ ray ── */}
-      <div className="home-lead">
-        <div className="home-lead-main">
+      <div className="grid grid-cols-1 items-start gap-7 lg:grid-cols-[1fr_320px]">
+        <div className="min-w-0">
           <HeroCard article={hero}/>
           {lead2.length > 0 && (
-            <div className="home-lead-sub">
+            <div className="mt-[18px] grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--border)] sm:grid-cols-2 lg:mt-0 lg:rounded-b-xl lg:rounded-t-none lg:border-t-0">
               {lead2.map(a => (
-                <Link key={a.filename} href={`/${a.slug}`} className="lead-sub-item">
-                  <span className="lead-sub-cat" style={{color:(CATS[a.category]?.c)||"var(--accent)"}}>
+                <Link
+                  key={a.filename}
+                  href={`/${a.slug}`}
+                  className="group flex flex-col gap-[7px] bg-[color:var(--bg)] px-5 py-[18px] transition-colors hover:bg-[color:var(--surface)]"
+                >
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em]" style={{color:(CATS[a.category]?.c)||"var(--accent)"}}>
                     {(CATS[a.category]?.l)||a.category.toUpperCase()}
                   </span>
-                  <span className="lead-sub-title">{a.title}</span>
-                  <span className="lead-sub-meta">{Ago(a.created_at)}</span>
+                  <span className="line-clamp-3 font-[family-name:var(--display)] text-[15px] font-bold leading-[1.34] tracking-[-0.02em] text-[color:var(--ink)] transition-colors group-hover:text-[color:var(--accent)]">
+                    {a.title}
+                  </span>
+                  <span className="mt-auto font-mono text-[10px] tracking-[0.04em] text-[color:var(--muted)]">{Ago(a.created_at)}</span>
                 </Link>
               ))}
             </div>
           )}
         </div>
 
-        <aside className="home-rail">
-          <div className="rail-card">
-            <div className="rail-head">En Çok Okunan</div>
+        <aside className="flex flex-col gap-[18px] lg:sticky lg:top-[120px]">
+          <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--bg)] px-[18px] pb-2 pt-4 shadow-sm">
+            <div className="mb-1 border-b border-[color:var(--border2)] pb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--accent)]">En Çok Okunan</div>
             {mostRead.map((a,i)=><RankedCard key={a.filename} article={a} index={i}/>)}
           </div>
           <MoversRail />
           {trending.length > 0 && (
-            <div className="rail-card">
-              <div className="rail-head">Gündemdekiler</div>
-              <div className="rail-chips">
+            <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--bg)] px-[18px] pb-2 pt-4 shadow-sm">
+              <div className="mb-1 border-b border-[color:var(--border2)] pb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--accent)]">Gündemdekiler</div>
+              <div className="flex flex-wrap gap-[7px] px-0 pb-3 pt-1">
                 {trending.map(t=>(
-                  <Link key={t} href={`/?q=${encodeURIComponent(t)}`} className="rail-chip">{t}</Link>
+                  <Link
+                    key={t}
+                    href={`/?q=${encodeURIComponent(t)}`}
+                    className="rounded-full border border-[color:var(--border2)] bg-[color:var(--surface)] px-[11px] py-[5px] font-mono text-[11px] font-medium tracking-[0.02em] text-[color:var(--ink2)] transition-colors hover:border-[color:var(--accent)] hover:bg-[color:var(--accent-soft)] hover:text-[color:var(--accent)]"
+                  >
+                    {t}
+                  </Link>
                 ))}
               </div>
             </div>
           )}
-          <div className="rail-ad">
+          <div className="min-h-[280px]">
             <AdSlot position="sidebar" />
           </div>
         </aside>
@@ -86,7 +98,7 @@ export default async function HomePage() {
 
       {/* Lider altı üçlü şerit */}
       {strip.length > 0 && (
-        <div className="home-strip-row">
+        <div className="mt-7 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--border)] md:grid-cols-3">
           {strip.map(a=><StripCard key={a.filename} article={a}/>)}
         </div>
       )}

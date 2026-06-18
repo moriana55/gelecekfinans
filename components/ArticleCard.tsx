@@ -7,7 +7,7 @@ export const CATS: Record<string, {l:string;c:string}> = {
   borsa:  {l:"BORSA", c:"#16a34a"},
   doviz:  {l:"DÖVİZ", c:"#2563eb"},
   altin:  {l:"ALTIN", c:"#b45309"},
-  ekonomi:{l:"EKONOMİ",c:"#7c3aed"},
+  ekonomi:{l:"EKONOMİ",c:"#475569"},
 };
 
 function Badge({cat}:{cat:string}){

@@ -7,6 +7,10 @@ import { useEffect, useState } from "react";
  * Mevcut canlı veri uçlarını (PriceBar → /api/fiyatlar, CryptoTicker → /api/kripto)
  * yeniden kullanır; farklı bir veri akışı kurmaz. Tüm hücreler için yükseklik
  * rezerve edilir → CLS yok. Her satır ilgili canlı veri sayfasına bağlanır.
+ *
+ * Stil: doğrudan Tailwind utility sınıfları (inline) + tasarım sistemi CSS
+ * değişkenleri (:root içinde tanımlı). Özel .market-board CSS'ine bağlı DEĞİL,
+ * böylece derleme/önbellek sorunlarında sessizce stilsiz kalamaz.
  */
 
 interface Fiyatlar {
@@ -35,10 +39,11 @@ function num(v: number, frac = 2) {
 }
 
 function Pct({ v }: { v: number | null | undefined }) {
-  if (v == null) return <span className="mb-pct mb-flat">—</span>;
+  const base = "inline-block min-w-[64px] text-right font-mono text-[11.5px] font-semibold tabular-nums";
+  if (v == null) return <span className={`${base} text-slate-400`}>—</span>;
   const up = v >= 0;
   return (
-    <span className={`mb-pct ${up ? "mb-up" : "mb-dn"}`}>
+    <span className={`${base} ${up ? "text-emerald-700" : "text-red-600"}`}>
       {up ? "▲" : "▼"} {Math.abs(v).toFixed(2)}%
     </span>
   );
@@ -56,20 +61,30 @@ interface Row {
 
 function Table({ rows, all }: { rows: Row[]; all: { l: string; href: string } }) {
   return (
-    <div className="mb-table" role="table" aria-label="Piyasa verileri">
+    <div className="px-2 pb-2" role="table" aria-label="Piyasa verileri">
       {rows.map((r) => (
-        <Link key={r.name} href={r.href} className="mb-row" role="row">
-          <span className="mb-name">
+        <Link
+          key={r.name}
+          href={r.href}
+          role="row"
+          className="grid min-h-[40px] grid-cols-[1fr_auto_auto] items-center gap-2.5 rounded-lg px-2.5 py-2.5 transition-colors hover:bg-[color:var(--accent-soft)]"
+        >
+          <span className="flex min-w-0 items-baseline gap-1.5 text-[13.5px] font-semibold tracking-[-0.01em] text-[color:var(--ink)]">
             {r.name}
-            {r.sub && <span className="mb-sub">{r.sub}</span>}
+            {r.sub && (
+              <span className="font-mono text-[10px] font-medium tracking-[0.02em] text-[color:var(--muted)]">{r.sub}</span>
+            )}
           </span>
-          <span className="mb-val">
+          <span className="text-right font-mono text-[13.5px] font-semibold tabular-nums text-[color:var(--ink)]">
             {r.price != null ? `${r.prefix ?? "₺"}${num(r.price, r.frac ?? 2)}` : "—"}
           </span>
           <Pct v={r.pct} />
         </Link>
       ))}
-      <Link href={all.href} className="mb-all">
+      <Link
+        href={all.href}
+        className="block px-2.5 pb-1.5 pt-2.5 font-mono text-[11px] font-semibold tracking-[0.04em] text-[color:var(--accent)] transition-colors hover:text-[color:var(--accent2)]"
+      >
         {all.l} →
       </Link>
     </div>
@@ -78,15 +93,15 @@ function Table({ rows, all }: { rows: Row[]; all: { l: string; href: string } })
 
 function Skeleton() {
   return (
-    <div className="mb-table" aria-hidden>
+    <div className="px-2 pb-2" aria-hidden>
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="mb-row mb-row-skel">
-          <span className="mb-skel mb-skel-name" />
-          <span className="mb-skel mb-skel-val" />
-          <span className="mb-skel mb-skel-pct" />
+        <div key={i} className="grid min-h-[40px] grid-cols-[1fr_auto_auto] items-center gap-2.5 px-2.5 py-2.5">
+          <span className="block h-3 w-[70%] animate-pulse rounded bg-[color:var(--surface2)]" />
+          <span className="ml-auto block h-3 w-[54px] animate-pulse rounded bg-[color:var(--surface2)]" />
+          <span className="ml-auto block h-3 w-[46px] animate-pulse rounded bg-[color:var(--surface2)]" />
         </div>
       ))}
-      <span className="mb-all mb-all-skel" />
+      <span className="mx-2.5 mb-1.5 mt-3.5 block h-3 w-[110px] animate-pulse rounded bg-[color:var(--surface2)]" />
     </div>
   );
 }
@@ -139,40 +154,56 @@ export default function MarketBoard() {
     kripto.push({ name: "Bitcoin", sub: "BTC", href: "/kripto", price: f.btc?.price, pct: f.btc?.pct, frac: 0 });
   }
 
+  const colTitle =
+    "px-[18px] pb-1.5 pt-3 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--muted)]";
+
   return (
-    <section className="market-board" aria-label="Canlı piyasa verileri">
-      <div className="mb-head">
-        <span className="mb-eyebrow">
-          <span className="mb-live" aria-hidden /> Canlı Piyasa
+    <section
+      className="my-6 overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--bg)] shadow-sm md:my-9"
+      aria-label="Canlı piyasa verileri"
+    >
+      <div className="flex flex-wrap items-center gap-3 border-b border-[color:var(--border)] bg-[color:var(--surface)] px-3 py-2.5 md:gap-4 md:px-[18px] md:py-3">
+        <span className="inline-flex items-center gap-2 whitespace-nowrap font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--accent-ink)]">
+          <span className="h-[7px] w-[7px] animate-pulse rounded-full bg-emerald-700" aria-hidden /> Canlı Piyasa
         </span>
-        <div className="mb-tabs" role="tablist">
+        <div className="inline-flex gap-1 md:hidden" role="tablist">
           {TABS.map((t) => (
             <button
               key={t.k}
               role="tab"
               aria-selected={tab === t.k}
-              className={`mb-tab${tab === t.k ? " on" : ""}`}
               onClick={() => setTab(t.k)}
+              className={`cursor-pointer rounded-full border px-3 py-[5px] font-mono text-[11px] font-semibold tracking-[0.03em] transition-colors ${
+                tab === t.k
+                  ? "border-[color:var(--accent)] bg-[color:var(--accent)] text-white"
+                  : "border-[color:var(--border2)] bg-[color:var(--bg)] text-[color:var(--muted)]"
+              }`}
             >
               {t.l}
             </button>
           ))}
         </div>
-        <span className="mb-updated">60 sn’de bir güncellenir</span>
+        <span className="order-3 ml-0 w-full whitespace-nowrap font-mono text-[10px] tracking-[0.04em] text-[color:var(--muted)] md:order-none md:ml-auto md:w-auto">
+          60 sn’de bir güncellenir
+        </span>
       </div>
 
       {/* Masaüstü: üç tablo yan yana. Mobil: aktif sekme. */}
-      <div className="mb-grid">
-        <div className={`mb-col${tab === "doviz" ? " mb-col-active" : ""}`}>
-          <div className="mb-col-title">Döviz Kurları</div>
+      <div className="grid grid-cols-1 md:grid-cols-3">
+        <div
+          className={`border-b border-[color:var(--border)] md:border-b-0 md:border-r ${tab === "doviz" ? "block" : "hidden md:block"}`}
+        >
+          <div className={`${colTitle} hidden md:block`}>Döviz Kurları</div>
           {loaded ? <Table rows={doviz} all={{ l: "Tüm döviz kurları", href: "/doviz" }} /> : <Skeleton />}
         </div>
-        <div className={`mb-col${tab === "altin" ? " mb-col-active" : ""}`}>
-          <div className="mb-col-title">Altın Fiyatları</div>
+        <div
+          className={`border-b border-[color:var(--border)] md:border-b-0 md:border-r ${tab === "altin" ? "block" : "hidden md:block"}`}
+        >
+          <div className={`${colTitle} hidden md:block`}>Altın Fiyatları</div>
           {loaded ? <Table rows={altin} all={{ l: "Tüm altın fiyatları", href: "/altin" }} /> : <Skeleton />}
         </div>
-        <div className={`mb-col${tab === "kripto" ? " mb-col-active" : ""}`}>
-          <div className="mb-col-title">Kripto Para</div>
+        <div className={`${tab === "kripto" ? "block" : "hidden md:block"}`}>
+          <div className={`${colTitle} hidden md:block`}>Kripto Para</div>
           {loaded ? <Table rows={kripto} all={{ l: "Tüm kripto fiyatları", href: "/kripto" }} /> : <Skeleton />}
         </div>
       </div>

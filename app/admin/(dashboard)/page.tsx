@@ -32,7 +32,7 @@ export default async function AdminDashboard() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
         <StatCard label="Ort. SEO Skoru" value={avgSeo} color={avgSeo >= 70 ? "#16a34a" : avgSeo >= 50 ? "#d97706" : "#dc2626"} />
         <StatCard label="İç Linksiz Makale" value={noLinks} color={noLinks > 0 ? "#dc2626" : "#16a34a"} />
-        <StatCard label="Aboneler" value={subscriberCount} color="#7c3aed" />
+        <StatCard label="Aboneler" value={subscriberCount} color="#0891b2" />
         <StatCard label="Reddedilen" value={rejected} color="#dc2626" />
       </div>
 
