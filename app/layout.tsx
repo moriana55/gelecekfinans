@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import PriceBar from "@/components/PriceBar";
 import Navbar from "@/components/Navbar";
@@ -10,6 +11,20 @@ import { Analytics } from "@vercel/analytics/react";
 import Link from "next/link";
 
 const BASE = "https://gelecekfinans.com";
+
+// Modern fintech tipografi: güçlü grotesk başlık/gövde + monospace rakamlar.
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+  weight: ["400", "500", "600", "700", "800", "900"],
+});
+const jetbrains = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+  weight: ["400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: { default: "GelecekFinans — Finans & Ekonomi Haberleri", template: "%s | GelecekFinans" },
@@ -25,7 +40,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   metadataBase: new URL(BASE),
   alternates: { types: { "application/rss+xml": "/feed.xml" } },
-  other: { "theme-color": "#111111", "apple-mobile-web-app-capable": "yes" },
+  other: { "theme-color": "#ffffff", "apple-mobile-web-app-capable": "yes" },
   openGraph: {
     type: "website",
     locale: "tr_TR",
@@ -51,7 +66,7 @@ const CATS = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="tr">
+    <html lang="tr" className={`${inter.variable} ${jetbrains.variable}`}>
       <body className="pb-ticker">
         <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({
           "@context":"https://schema.org","@type":"WebSite",

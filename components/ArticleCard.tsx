@@ -81,13 +81,13 @@ export function MedCard({article}:{article:Article}){
   return(
     <Link href={`/${article.slug}`} className="grid-card">
       {img
-        ? <div style={{overflow:"hidden",borderRadius:"var(--radius)",position:"relative",aspectRatio:"16/9"}}>
+        ? <div style={{overflow:"hidden",position:"relative",aspectRatio:"16/9"}}>
             {img.startsWith("/api/")
               ? <img src={img} alt={article.title} className="grid-card-img" loading="lazy" style={{width:"100%",height:"100%",objectFit:"cover"}} />
               : <Image src={img} alt={article.title} fill sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 25vw" style={{objectFit:"cover"}} />
             }
           </div>
-        : <div style={{width:"100%",aspectRatio:"16/9",background:"var(--surface2)",borderRadius:"var(--radius)"}}/>
+        : <div style={{width:"100%",aspectRatio:"16/9",background:"var(--surface2)"}}/>
       }
       <div className="grid-card-body">
         <Badge cat={article.category}/>
