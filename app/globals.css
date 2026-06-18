@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* Next.js çok-lockfile yüzünden workspace-root'u yanlış çıkarıyor → Tailwind v4
+   içerik taramasını şaşırtıyor, components/ + app/ içindeki utility sınıfları
+   ÜRETİLMİYORDU (board/rail ham metin kalıyordu). Tarama yolunu açıkça veriyoruz. */
+@source "../app";
+@source "../components";
+
 /* ============================================================
    GELECEKFİNANS — MODERN FINTECH DESIGN SYSTEM
    Light, kredibilite odaklı, rakam öncelikli. Tek güven veren
