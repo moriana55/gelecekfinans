@@ -3,6 +3,14 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Gizlilik Politikası",
   description: "GelecekFinans gizlilik politikası ve kişisel verilerin korunması.",
+  alternates: { canonical: "https://gelecekfinans.com/gizlilik-politikasi" },
+  openGraph: {
+    type: "website",
+    url: "https://gelecekfinans.com/gizlilik-politikasi",
+    title: "Gizlilik Politikası — GelecekFinans",
+    description: "GelecekFinans gizlilik politikası ve kişisel verilerin korunması.",
+    siteName: "GelecekFinans",
+  },
 };
 
 export default function GizlilikPolitikasi() {

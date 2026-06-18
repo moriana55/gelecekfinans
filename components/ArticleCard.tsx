@@ -111,8 +111,8 @@ export function RankedCard({article,index}:{article:Article;index:number}){
       </div>
       {img&&<div style={{width:56,height:42,borderRadius:4,overflow:"hidden",flexShrink:0,position:"relative"}}>
         {img.startsWith("/api/")
-          ? <img src={img} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}} loading="lazy" />
-          : <Image src={img} alt="" fill sizes="56px" style={{objectFit:"cover"}} />
+          ? <img src={img} alt={article.title} width={56} height={42} style={{width:"100%",height:"100%",objectFit:"cover"}} loading="lazy" />
+          : <Image src={img} alt={article.title} fill sizes="56px" style={{objectFit:"cover"}} />
         }
       </div>}
     </Link>

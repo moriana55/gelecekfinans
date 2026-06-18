@@ -16,10 +16,20 @@ export async function generateMetadata({params, searchParams}:{params:Promise<{c
   const {sayfa}=await searchParams;
   const page = Math.max(1, parseInt(sayfa || "1"));
   const canonical = page > 1 ? `${BASE}/kategori/${cat}?sayfa=${page}` : `${BASE}/kategori/${cat}`;
+  const title = page > 1 ? `${c.l} Haberleri — Sayfa ${page}` : `${c.l} Haberleri ve Son Dakika Gelişmeleri`;
+  const description = `Güncel ${c.l.toLowerCase()} haberleri, analizleri ve son dakika gelişmeleri. GelecekFinans'tan tarafsız ${c.l.toLowerCase()} piyasası takibi.`;
   return{
-    title: page > 1 ? `${c.l} Haberleri — Sayfa ${page}` : `${c.l} Haberleri`,
-    description:`Güncel ${c.l.toLowerCase()} haberleri ve son dakika gelişmeleri.`,
+    title,
+    description,
     alternates: { canonical },
+    openGraph: {
+      type: "website",
+      url: canonical,
+      title,
+      description,
+      siteName: "GelecekFinans",
+    },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -31,8 +41,29 @@ export default async function CatPage({params, searchParams}:{params:Promise<{ca
   const totalPages = Math.ceil(allArts.length / PER_PAGE);
   const arts = allArts.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        name: `${cfg.l} Haberleri`,
+        description: `Güncel ${cfg.l.toLowerCase()} haberleri ve son dakika gelişmeleri.`,
+        url: `${BASE}/kategori/${cat}`,
+        isPartOf: { "@type": "WebSite", name: "GelecekFinans", url: BASE },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Ana Sayfa", item: BASE },
+          { "@type": "ListItem", position: 2, name: cfg.l, item: `${BASE}/kategori/${cat}` },
+        ],
+      },
+    ],
+  };
+
   return(
     <div className="container page-cat">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="cat-header" style={{borderColor:cfg.c}}>
         <span className="tag" style={{background:cfg.c,marginBottom:10,display:"inline-block"}}>{cfg.l}</span>
         <h1 className="page-header">{cfg.l} Haberleri</h1>

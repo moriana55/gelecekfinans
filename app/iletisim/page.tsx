@@ -2,7 +2,16 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "İletişim",
-  description: "GelecekFinans ile iletişime geçin.",
+  description: "GelecekFinans ile iletişime geçin. Haber, öneri ve düzeltme talepleriniz için bize ulaşın.",
+  alternates: { canonical: "https://gelecekfinans.com/iletisim" },
+  openGraph: {
+    type: "website",
+    url: "https://gelecekfinans.com/iletisim",
+    title: "İletişim — GelecekFinans",
+    description: "GelecekFinans ile iletişime geçin.",
+    siteName: "GelecekFinans",
+  },
+  twitter: { card: "summary", title: "İletişim — GelecekFinans" },
 };
 
 export default function Iletisim() {

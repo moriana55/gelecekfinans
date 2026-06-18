@@ -85,7 +85,7 @@ export default function Search() {
             return (
               <div key={a.slug} className={`search-result${i === idx ? " active" : ""}`} onClick={() => go(a.slug)}>
                 {imgUrl
-                  ? <img src={imgUrl} alt="" className="search-result-img" />
+                  ? <img src={imgUrl} alt={a.title} loading="lazy" className="search-result-img" />
                   : <div className="search-result-img" style={{ borderRadius: 6 }} />
                 }
                 <div style={{ flex: 1, minWidth: 0 }}>
