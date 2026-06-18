@@ -1,12 +1,17 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 
 /**
  * "Piyasa Hareketleri" rayı — en çok yükselen / düşen kripto paralar.
  * CryptoTicker ile aynı uç noktayı (/api/kripto) yeniden kullanır; ayrı bir
- * veri akışı kurmaz. Yükseklik rezerve edilir → CLS yok. Stil: inline Tailwind
- * utility sınıfları (özel .mover-* CSS'ine bağlı değil).
+ * veri akışı kurmaz. Yükseklik rezerve edilir → CLS yok.
+ *
+ * NOT: INLINE STYLE kullanır — Tailwind utility üretimi bu projede güvenilmez
+ * çıktığı için (çok-lockfile workspace-root + v4 içerik taraması) gap/padding
+ * sınıfları render'a yansımıyordu → "her şey dip dibe". Inline style hiçbir CSS
+ * derleme koşuluna bağlı değil → boşluklar her zaman uygulanır.
  */
 interface Coin {
   symbol: string;
@@ -14,24 +19,57 @@ interface Coin {
   price_change_percentage_24h: number;
 }
 
+const mono = "var(--mono), ui-monospace, monospace";
+
 function num(v: number) {
   return v >= 1000
     ? v.toLocaleString("tr-TR", { maximumFractionDigits: 0 })
     : v.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function MoverRow({ c }: { c: Coin }) {
+function MoverRow({ c, last }: { c: Coin; last: boolean }) {
   const pct = c.price_change_percentage_24h ?? 0;
   const up = pct >= 0;
   return (
     <Link
       href="/kripto"
-      className="grid min-h-[36px] grid-cols-[1fr_auto_auto] items-center gap-2.5 rounded-md px-1 py-2 transition-colors hover:bg-[color:var(--surface)]"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr auto auto",
+        alignItems: "center",
+        gap: 12,
+        minHeight: 40,
+        padding: "11px 8px",
+        textDecoration: "none",
+        borderBottom: last ? "none" : "1px solid var(--border)",
+      }}
     >
-      <span className="font-mono text-[12px] font-bold text-[color:var(--ink)]">{c.symbol?.toUpperCase()}</span>
-      <span className="text-right font-mono text-[12px] tabular-nums text-[color:var(--ink2)]">₺{num(c.current_price)}</span>
+      <span style={{ fontFamily: mono, fontSize: 12.5, fontWeight: 700, letterSpacing: "-0.01em", color: "var(--ink)" }}>
+        {c.symbol?.toUpperCase()}
+      </span>
       <span
-        className={`min-w-[58px] text-right font-mono text-[11.5px] font-semibold tabular-nums ${up ? "text-emerald-700" : "text-red-600"}`}
+        style={{
+          fontFamily: mono,
+          fontSize: 12.5,
+          fontVariantNumeric: "tabular-nums",
+          color: "var(--ink2)",
+          textAlign: "right",
+          whiteSpace: "nowrap",
+        }}
+      >
+        ₺{num(c.current_price)}
+      </span>
+      <span
+        style={{
+          minWidth: 62,
+          textAlign: "right",
+          fontFamily: mono,
+          fontSize: 12,
+          fontWeight: 600,
+          fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap",
+          color: up ? "#15803d" : "#dc2626",
+        }}
       >
         {up ? "+" : ""}
         {pct.toFixed(2)}%
@@ -41,14 +79,30 @@ function MoverRow({ c }: { c: Coin }) {
 }
 
 function SkelGroup() {
+  const bar: CSSProperties = {
+    height: 14,
+    borderRadius: 4,
+    background: "var(--surface2)",
+    display: "block",
+  };
   return (
-    <div className="flex flex-col gap-2 py-1">
-      <span className="h-3.5 animate-pulse rounded bg-[color:var(--surface2)]" />
-      <span className="h-3.5 animate-pulse rounded bg-[color:var(--surface2)]" />
-      <span className="h-3.5 animate-pulse rounded bg-[color:var(--surface2)]" />
+    <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "12px 8px" }}>
+      <span style={bar} />
+      <span style={bar} />
+      <span style={bar} />
     </div>
   );
 }
+
+const subLabel = (color: string): CSSProperties => ({
+  fontFamily: mono,
+  fontSize: 10,
+  fontWeight: 600,
+  textTransform: "uppercase",
+  letterSpacing: "0.12em",
+  color,
+  margin: "14px 8px 6px",
+});
 
 export default function MoversRail() {
   const [coins, setCoins] = useState<Coin[]>([]);
@@ -71,22 +125,44 @@ export default function MoversRail() {
   const losers = [...valid].sort((a, b) => a.price_change_percentage_24h - b.price_change_percentage_24h).slice(0, 3);
 
   return (
-    <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--bg)] px-[18px] pb-2 pt-4 shadow-sm">
-      <div className="mb-1 border-b border-[color:var(--border2)] pb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--accent)]">
+    <div
+      style={{
+        borderRadius: 12,
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        boxShadow: "0 1px 2px rgba(15,23,42,.05)",
+        padding: "16px 18px 12px",
+      }}
+    >
+      <div
+        style={{
+          paddingBottom: 12,
+          marginBottom: 4,
+          borderBottom: "1px solid var(--border2)",
+          fontFamily: mono,
+          fontSize: 10,
+          fontWeight: 600,
+          textTransform: "uppercase",
+          letterSpacing: "0.16em",
+          color: "var(--accent)",
+        }}
+      >
         Piyasa Hareketleri
       </div>
-      <div className="py-1.5">
-        <div className="mt-1.5 mb-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-emerald-700">
-          Yükselenler
-        </div>
-        {loaded && gainers.length ? gainers.map((c) => <MoverRow key={c.symbol} c={c} />) : <SkelGroup />}
-      </div>
-      <div className="py-1.5">
-        <div className="mt-1.5 mb-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-red-600">
-          Düşenler
-        </div>
-        {loaded && losers.length ? losers.map((c) => <MoverRow key={c.symbol} c={c} />) : <SkelGroup />}
-      </div>
+
+      <div style={subLabel("#15803d")}>Yükselenler</div>
+      {loaded && gainers.length ? (
+        gainers.map((c, i) => <MoverRow key={c.symbol} c={c} last={i === gainers.length - 1} />)
+      ) : (
+        <SkelGroup />
+      )}
+
+      <div style={subLabel("#dc2626")}>Düşenler</div>
+      {loaded && losers.length ? (
+        losers.map((c, i) => <MoverRow key={c.symbol} c={c} last={i === losers.length - 1} />)
+      ) : (
+        <SkelGroup />
+      )}
     </div>
   );
 }

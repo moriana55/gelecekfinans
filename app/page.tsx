@@ -43,46 +43,102 @@ export default async function HomePage() {
       {/* ── CANLI PİYASA TABLOSU (Doviz/Investing tarzı, sayfanın üstünde) ── */}
       <MarketBoard />
 
-      {/* ── HABER HİYERARŞİSİ: lider + ikincil + sağ ray ── */}
-      <div className="grid grid-cols-1 items-start gap-7 lg:grid-cols-[1fr_320px]">
-        <div className="min-w-0">
+      {/* ── HABER HİYERARŞİSİ: lider + ikincil + sağ ray ──
+           Tüm yerleşim/boşluk INLINE STYLE ile verilir (Tailwind utility üretimi
+           bu projede güvenilmez → gap/padding sınıfları render'a yansımıyordu).
+           Responsive kırılım .home-split-* sınıfları üzerinden globals.css'te. */}
+      <div className="home-split" style={{ display: "grid", gridTemplateColumns: "1fr 320px", alignItems: "start", gap: 28 }}>
+        <div style={{ minWidth: 0 }}>
           <HeroCard article={hero}/>
           {lead2.length > 0 && (
-            <div className="mt-[18px] grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--border)] sm:grid-cols-2 lg:mt-0 lg:rounded-b-xl lg:rounded-t-none lg:border-t-0">
+            <div
+              className="home-lead2"
+              style={{
+                marginTop: 18,
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: 1,
+                overflow: "hidden",
+                borderRadius: 12,
+                border: "1px solid var(--border)",
+                background: "var(--border)",
+              }}
+            >
               {lead2.map(a => (
                 <Link
                   key={a.filename}
                   href={`/${a.slug}`}
-                  className="group flex flex-col gap-[7px] bg-[color:var(--bg)] px-5 py-[18px] transition-colors hover:bg-[color:var(--surface)]"
+                  className="home-lead2-card"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 8,
+                    background: "var(--bg)",
+                    padding: "20px 20px 18px",
+                    textDecoration: "none",
+                  }}
                 >
-                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.08em]" style={{color:(CATS[a.category]?.c)||"var(--accent)"}}>
-                    {(CATS[a.category]?.l)||a.category.toUpperCase()}
+                  <span style={{ fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: (CATS[a.category]?.c) || "var(--accent)" }}>
+                    {(CATS[a.category]?.l) || a.category.toUpperCase()}
                   </span>
-                  <span className="line-clamp-3 font-[family-name:var(--display)] text-[15px] font-bold leading-[1.34] tracking-[-0.02em] text-[color:var(--ink)] transition-colors group-hover:text-[color:var(--accent)]">
+                  <span
+                    style={{
+                      fontFamily: "var(--display)",
+                      fontSize: 15,
+                      fontWeight: 700,
+                      lineHeight: 1.38,
+                      letterSpacing: "-0.02em",
+                      color: "var(--ink)",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
                     {a.title}
                   </span>
-                  <span className="mt-auto font-mono text-[10px] tracking-[0.04em] text-[color:var(--muted)]">{Ago(a.created_at)}</span>
+                  <span style={{ marginTop: "auto", paddingTop: 4, fontFamily: "var(--mono)", fontSize: 10, letterSpacing: "0.04em", color: "var(--muted)" }}>
+                    {Ago(a.created_at)}
+                  </span>
                 </Link>
               ))}
             </div>
           )}
         </div>
 
-        <aside className="flex flex-col gap-[18px] lg:sticky lg:top-[120px]">
-          <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--bg)] px-[18px] pb-2 pt-4 shadow-sm">
-            <div className="mb-1 border-b border-[color:var(--border2)] pb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--accent)]">En Çok Okunan</div>
-            {mostRead.map((a,i)=><RankedCard key={a.filename} article={a} index={i}/>)}
+        <aside className="home-rail" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--bg)", boxShadow: "0 1px 2px rgba(15,23,42,.05)", padding: "16px 18px 8px" }}>
+            <div style={{ paddingBottom: 12, marginBottom: 4, borderBottom: "1px solid var(--border2)", fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>
+              En Çok Okunan
+            </div>
+            {mostRead.map((a,i)=><RankedCard key={a.filename} article={a} index={i} last={i===mostRead.length-1}/>)}
           </div>
           <MoversRail />
           {trending.length > 0 && (
-            <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--bg)] px-[18px] pb-2 pt-4 shadow-sm">
-              <div className="mb-1 border-b border-[color:var(--border2)] pb-3 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--accent)]">Gündemdekiler</div>
-              <div className="flex flex-wrap gap-[7px] px-0 pb-3 pt-1">
+            <div style={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--bg)", boxShadow: "0 1px 2px rgba(15,23,42,.05)", padding: "16px 18px 18px" }}>
+              <div style={{ paddingBottom: 12, marginBottom: 14, borderBottom: "1px solid var(--border2)", fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>
+                Gündemdekiler
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {trending.map(t=>(
                   <Link
                     key={t}
                     href={`/?q=${encodeURIComponent(t)}`}
-                    className="rounded-full border border-[color:var(--border2)] bg-[color:var(--surface)] px-[11px] py-[5px] font-mono text-[11px] font-medium tracking-[0.02em] text-[color:var(--ink2)] transition-colors hover:border-[color:var(--accent)] hover:bg-[color:var(--accent-soft)] hover:text-[color:var(--accent)]"
+                    style={{
+                      display: "inline-block",
+                      borderRadius: 999,
+                      border: "1px solid var(--border2)",
+                      background: "var(--surface)",
+                      padding: "6px 12px",
+                      fontFamily: "var(--mono)",
+                      fontSize: 11,
+                      fontWeight: 500,
+                      letterSpacing: "0.02em",
+                      lineHeight: 1.2,
+                      color: "var(--ink2)",
+                      textDecoration: "none",
+                      whiteSpace: "nowrap",
+                    }}
                   >
                     {t}
                   </Link>
@@ -90,7 +146,7 @@ export default async function HomePage() {
               </div>
             </div>
           )}
-          <div className="min-h-[280px]">
+          <div style={{ minHeight: 280 }}>
             <AdSlot position="sidebar" />
           </div>
         </aside>
@@ -98,7 +154,19 @@ export default async function HomePage() {
 
       {/* Lider altı üçlü şerit */}
       {strip.length > 0 && (
-        <div className="mt-7 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-[color:var(--border)] bg-[color:var(--border)] md:grid-cols-3">
+        <div
+          className="home-strip3"
+          style={{
+            marginTop: 28,
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 1,
+            overflow: "hidden",
+            borderRadius: 12,
+            border: "1px solid var(--border)",
+            background: "var(--border)",
+          }}
+        >
           {strip.map(a=><StripCard key={a.filename} article={a}/>)}
         </div>
       )}
@@ -107,29 +175,29 @@ export default async function HomePage() {
       <AdSlot position="headerBanner" />
 
       {recent.length>0&&(
-        <section className="section">
-          <div className="sec-rule">
+        <section className="section" style={{marginTop:40}}>
+          <div className="sec-rule" style={{display:"flex",alignItems:"center",gap:16,padding:"40px 0 20px",marginBottom:24}}>
             <span className="sec-rule-label" style={{color:"var(--ink)"}}>Son Haberler</span>
             <div className="sec-rule-line"/>
           </div>
-          <div className="resp-grid-4">
+          <div className="resp-grid-4" style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:"28px 20px"}}>
             {recent.map(a=><MedCard key={a.filename} article={a}/>)}
           </div>
         </section>
       )}
 
-      <section className="section">
+      <section className="section" style={{marginTop:40}}>
         <Newsletter />
       </section>
 
       {byCat.map(({cat,cfg,items}, idx)=> (
-        <section key={cat} className="section">
-          <div className="sec-rule">
+        <section key={cat} className="section" style={{marginTop:40}}>
+          <div className="sec-rule" style={{display:"flex",alignItems:"center",gap:16,padding:"40px 0 20px",marginBottom:24}}>
             <span className="sec-rule-label" style={{color:cfg.c}}>{cfg.l}</span>
             <div className="sec-rule-line"/>
             <Link href={`/kategori/${cat}`} className="sec-rule-all">Tümünü gör →</Link>
           </div>
-          <div className="resp-grid-4">
+          <div className="resp-grid-4" style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:"28px 20px"}}>
             {items.map(a=><MedCard key={a.filename} article={a}/>)}
           </div>
           {/* Akış ortasına yerleştirilmiş tek reklam (kategoriler arası) */}

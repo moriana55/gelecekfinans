@@ -1590,6 +1590,20 @@ input:focus-visible,
   border-bottom: 1px solid var(--border);
 }
 
+/* Ana sayfa yerleşimi inline style ile verildiği için (Tailwind utility'leri
+   güvenilmez) responsive kırılımlar !important ile inline'ı geçersiz kılar.
+   Taban boşluklar inline'da olduğundan CSS düşse bile asla dip dibe olmaz. */
+@media (max-width: 1024px) {
+  .home-split { grid-template-columns: 1fr !important; }
+  .home-rail { position: static !important; }
+  .resp-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 640px) {
+  .home-lead2 { grid-template-columns: 1fr !important; }
+  .home-strip3 { grid-template-columns: 1fr !important; }
+  .resp-grid-4 { grid-template-columns: 1fr !important; }
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 1024px) {
   .hero-editorial { grid-template-columns: 1fr !important; }

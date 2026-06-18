@@ -69,9 +69,11 @@ export function StripCard({article}:{article:Article}){
           </div>
         : <div style={{width:"100%",aspectRatio:"16/9",background:"var(--surface2)",borderRadius:"var(--radius)",marginBottom:14}}/>
       }
-      <Badge cat={article.category}/>
-      <h3 className="strip-card-title">{article.title}</h3>
-      <p className="strip-card-meta">{Ago(article.created_at)} <ViewCount n={article.views}/></p>
+      <div style={{display:"flex",flexDirection:"column",gap:9}}>
+        <span style={{display:"inline-block",width:"fit-content"}}><Badge cat={article.category}/></span>
+        <h3 className="strip-card-title" style={{margin:0,lineHeight:1.34}}>{article.title}</h3>
+        <p className="strip-card-meta" style={{margin:0}}>{Ago(article.created_at)} <ViewCount n={article.views}/></p>
+      </div>
     </Link>
   );
 }
@@ -89,25 +91,37 @@ export function MedCard({article}:{article:Article}){
           </div>
         : <div style={{width:"100%",aspectRatio:"16/9",background:"var(--surface2)"}}/>
       }
-      <div className="grid-card-body">
-        <Badge cat={article.category}/>
-        <h3 className="grid-card-title">{article.title}</h3>
-        <p className="grid-card-meta">{Ago(article.created_at)} <ViewCount n={article.views}/></p>
+      <div className="grid-card-body" style={{padding:"16px 16px 18px",display:"flex",flexDirection:"column",gap:8}}>
+        <span style={{display:"inline-block",width:"fit-content"}}><Badge cat={article.category}/></span>
+        <h3 className="grid-card-title" style={{margin:0,lineHeight:1.38}}>{article.title}</h3>
+        <p className="grid-card-meta" style={{margin:0}}>{Ago(article.created_at)} <ViewCount n={article.views}/></p>
       </div>
     </Link>
   );
 }
 
-export function RankedCard({article,index}:{article:Article;index:number}){
+export function RankedCard({article,index,last=false}:{article:Article;index:number;last?:boolean}){
   const img=article.imageUrl;
   const c=CATS[article.category];
+  // Boşluklar inline → Tailwind/CSS düşse bile satırlar dip dibe olmaz.
   return(
-    <Link href={`/${article.slug}`} className="ranked-row">
-      <span className="ranked-n">{index+1}</span>
-      <div style={{flex:1,minWidth:0}}>
+    <Link
+      href={`/${article.slug}`}
+      className="ranked-row"
+      style={{
+        display:"flex",
+        gap:14,
+        alignItems:"flex-start",
+        padding:"14px 0",
+        borderBottom:last?"none":"1px solid var(--border)",
+        textDecoration:"none",
+      }}
+    >
+      <span className="ranked-n" style={{flexShrink:0,width:26,fontFamily:"var(--mono)",fontSize:22,fontWeight:700,lineHeight:1,color:"var(--accent)",opacity:.35,fontVariantNumeric:"tabular-nums"}}>{index+1}</span>
+      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column",gap:5}}>
         {c&&<span style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:600,letterSpacing:".08em",textTransform:"uppercase",color:c.c}}>{c.l}</span>}
-        <p className="ranked-row-title" style={{marginTop:4}}>{article.title}</p>
-        <p className="ranked-row-meta">{Ago(article.created_at)} <ViewCount n={article.views}/></p>
+        <p className="ranked-row-title" style={{margin:0,lineHeight:1.45}}>{article.title}</p>
+        <p className="ranked-row-meta" style={{margin:0}}>{Ago(article.created_at)} <ViewCount n={article.views}/></p>
       </div>
       {img&&<div style={{width:56,height:42,borderRadius:4,overflow:"hidden",flexShrink:0,position:"relative"}}>
         {img.startsWith("/api/")
