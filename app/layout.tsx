@@ -42,6 +42,7 @@ export const metadata: Metadata = {
   // app/apple-icon.tsx (apple touch). Next bunları otomatik olarak <head>'e
   // ekler; bu yüzden burada açık `icons` tanımı yok (icon.svg öncelikli).
   robots: { index: true, follow: true },
+  verification: { google: "4aVBJpoKMchlL_iSElublDYdFr8BMugU2qMg3zU32D8" },
   metadataBase: new URL(BASE),
   alternates: { types: { "application/rss+xml": "/feed.xml" } },
   other: { "theme-color": "#ffffff", "apple-mobile-web-app-capable": "yes" },
