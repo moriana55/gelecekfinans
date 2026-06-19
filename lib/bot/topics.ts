@@ -42,6 +42,19 @@ interface RawTopic extends Topic {
   pubDate: number;
 }
 
+// Kategori anahtarları tutmadığında "bu haber finans/ekonomiyle ilgili mi?" kontrolü.
+// Geniş tutuldu ki gerçek ekonomi haberi elenmesin, ama asayiş/spor/magazin/kaza elensin.
+const ECONOMY_RELEVANCE = [
+  "ekonomi", "ekonomik", "finans", "piyasa", "borsa", "hisse", "endeks", "yatırım", "yatırımcı",
+  "dolar", "euro", "sterlin", "kur", "döviz", "altın", "gram", "ons",
+  "faiz", "enflasyon", "merkez bankası", "tcmb", "fed", "büyüme", "resesyon", "durgunluk",
+  "ihracat", "ithalat", "ticaret", "gümrük", "tarife", "bütçe", "vergi", "teşvik",
+  "istihdam", "işsizlik", "asgari ücret", "maaş", "zam", "sanayi", "üretim", "kapasite",
+  "gsyih", "gsyh", "üfe", "tüfe", "gfe", "cari açık", "rezerv", "kredi", "borç", "tahvil",
+  "banka", "bankacılık", "şirket", "bilanço", "temettü", "halka arz", "imf", "dünya bankası",
+  "petrol", "doğalgaz", "enerji", "emtia", "konut", "kira", "fiyat", "güven endeksi", "tüketici",
+];
+
 export async function getTopics(limit = 20, category?: string): Promise<Topic[]> {
   const all: RawTopic[] = [];
 
@@ -66,12 +79,21 @@ export async function getTopics(limit = 20, category?: string): Promise<Topic[]>
 
         const text = (title + " " + summary).toLowerCase();
 
-        let cat = "ekonomi";
+        // Önce 4 fiyat kategorisi (kripto/borsa/doviz/altin) + ekonomi anahtarları.
+        let cat = "";
         for (const [c, keywords] of Object.entries(CATEGORIES)) {
           if (keywords.some((kw) => text.includes(kw))) {
             cat = c;
             break;
           }
+        }
+
+        // Kategori tutmadıysa: finans/ekonomi ile gerçekten ilgili mi? Değilse ATLA.
+        // (Metro kazası, magazin, spor, asayiş gibi haberler finans sitesine konu değil —
+        //  eskiden default 'ekonomi'ye düşüp absürt "ekonomik analiz" makalesi oluyordu.)
+        if (!cat) {
+          if (ECONOMY_RELEVANCE.some((kw) => text.includes(kw))) cat = "ekonomi";
+          else continue;
         }
 
         all.push({ title, summary, category: cat, source: feed.title || url, imageUrl, pubDate });

@@ -55,6 +55,21 @@ function countWords(text: string): number {
   return text.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length;
 }
 
+// Yazar personaları — her makale farklı bir gazeteci sesiyle yazılsın (tekdüze şablon hissini kırar).
+// Başlığa göre deterministik seçilir (aynı haber hep aynı yazar, ama haberler arası çeşitlilik).
+const AUTHOR_PERSONAS = [
+  { name: "Mehmet Arslan", voice: "Kıdemli makroekonomi muhabiri. Resmi, ölçülü, analitik dil; bağlam zengin, tarihsel perspektifli cümleler; kurumsal ton." },
+  { name: "Elif Demir", voice: "Genç, enerjik piyasa muhabiri. Akıcı, dinamik, doğrudan dil; kısa-orta cümleler; 'bu ne anlama geliyor' bağını hızlı kurar." },
+  { name: "Can Yılmaz", voice: "Veri odaklı ekonomi yazarı. Sade, net, süssüz; rakamı ve somut gelişmeyi öne çıkarır; kısa paragraflar, madde madde netlik." },
+  { name: "Zeynep Kaya", voice: "Açıklayıcı/eğitici muhabir. Karmaşık konuyu sade örneklerle anlatır; samimi ama profesyonel; okuyucuyu elinden tutar." },
+  { name: "Burak Şahin", voice: "Saha/aktüel haber muhabiri. Olay-odaklı, güçlü 5N1K, hızlı giriş; yorumdan çok olguya yaslanır." },
+];
+function pickPersona(seed: string) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return AUTHOR_PERSONAS[h % AUTHOR_PERSONAS.length];
+}
+
 async function buildPrompt(topic: Topic, targetWords: number): Promise<string> {
   const prices = await getLivePrices();
   const struct = CATEGORY_PROMPTS[topic.category]?.structure || "";
@@ -67,12 +82,13 @@ Hedef uzunluk: EN AZ ${targetWords} kelime
 ⚠️ ÖNEMLİ: Bu bir HABER yazısıdır, ANALİZ DEĞİL. Piyasa analizi, teknik görünüm, destek/direnç YAZMA.
 Haberin odağı: KİM NE DEDİ, NE KARAR ALDI, NE AÇIKLADI — somut olay ve gelişmeleri yaz.
 
-GÜNCEL PİYASA VERİLERİ (referans olarak kullan, haberin ana konusu yapma):
+GÜNCEL PİYASA VERİLERİ (SADECE haber doğrudan kur/fiyat/piyasayla ilgiliyse kullan):
 ${prices}
-Kur/fiyat yazarken MUTLAKA yukarıdaki güncel verileri kullan, kafandan uydurma.
+⚠️ KRİTİK: Eğer haber piyasa/ekonomiyle DOĞRUDAN ilgili DEĞİLSE (kaza, atama, diplomasi, siyasi olay, genel gündem), yukarıdaki piyasa verilerini KULLANMA. Dolar/euro/TCMB/enflasyon gibi alakasız ekonomik yorumları haberin içine ZORLA SOKMA — bu saçma durur. Habere sadık kal, ne olduysa onu anlat.
 ${struct ? `
-BÖLÜM YAPISI (${topic.category} kategorisine özel — ## (H2) başlıklarını bu akışa göre kur):
+ÖNERİLEN BÖLÜM AKIŞI (yalnızca konuya UYUYORSA rehber al — UYMUYORSA ZORLAMA):
 ${struct}
+Haber bu akışa uymuyorsa (örn. kaza/olay/atama/diplomasi haberi), bu başlıkları KULLANMA; habere uygun doğal ## başlıkları kur: ne oldu → detaylar → yetkili açıklamaları → etkisi → arka plan/geçmiş.
 ` : ""}
 HABER FORMATI:
 1. SEO başlığı (55-62 karakter) — "X şunu açıkladı", "Y kararı alındı" gibi haber başlığı
@@ -194,8 +210,12 @@ export async function writeArticle(
   category: string; source: string; wordCount: number;
 }> {
   const catExtra = CATEGORY_PROMPTS[topic.category]?.system_extra || "";
+  const persona = pickPersona(topic.title);
 
-  const system = `Sen gelecekfinans.com için Türkçe finans HABERLERİ yazan deneyimli bir ekonomi muhabirisin.
+  const system = `Sen gelecekfinans.com için yazan ${persona.name} adlı deneyimli bir Türk ekonomi gazetecisisin.
+
+SENİN ÜSLUBUN: ${persona.voice}
+Bu üsluba SADIK kal — her yazarın sesi farklıdır; cümle yapın, tonun, paragraf uzunluğun ve kelime seçimin bu kimliğe uysun. Kalıplaşmış, tekdüze, "şablon doldurmuş" gibi yazma; doğal ve kendine özgü yaz.
 
 YAZIM TARZI:
 - Gazetecilik diliyle yaz — haber formatında, objektif, bilgilendirici
