@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { SEO_PUBLISH_THRESHOLD } from "@/lib/seo";
@@ -15,6 +15,9 @@ export default function EditArticle() {
   const [seo, setSeo] = useState<SeoResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch(`/api/admin/articles/${id}`)
@@ -47,6 +50,48 @@ export default function EditArticle() {
     setSaving(false);
   }
 
+  // Seçilen görsel dosyasını Vercel Blob'a yükler, dönen URL'i form.imageUrl'e yazar.
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/upload-image", { method: "POST", body: fd });
+      const d = await res.json();
+      if (!res.ok) {
+        alert(d.error || "Görsel yüklenemedi.");
+      } else if (d.url) {
+        setForm(f => ({ ...f, imageUrl: d.url }));
+      }
+    } catch {
+      alert("Görsel yüklenirken bir hata oluştu.");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = ""; // aynı dosya tekrar seçilebilsin
+    }
+  }
+
+  // Makaleyi kalıcı olarak siler; onay alır, başarılıysa listeye döner.
+  async function remove() {
+    if (!confirm("Bu makale kalıcı olarak silinecek. Emin misin?")) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/articles/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error || "Makale silinemedi.");
+        setDeleting(false);
+        return;
+      }
+      router.push("/sys-k3m8p/makaleler");
+    } catch {
+      alert("Makale silinirken bir hata oluştu.");
+      setDeleting(false);
+    }
+  }
+
   if (loading) return <p style={{ color: "var(--muted)" }}>Yükleniyor...</p>;
 
   return (
@@ -76,6 +121,38 @@ export default function EditArticle() {
 
         <Field label="Görsel URL" value={form.imageUrl} onChange={v => setForm(f => ({ ...f, imageUrl: v }))} />
 
+        {/* Görsel önizleme + dosya yükleme (URL alanı da çalışmaya devam eder) */}
+        <div style={{ marginBottom: 16 }}>
+          {form.imageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- harici/blob görsel önizlemesi, optimize gerekmez
+            <img
+              src={form.imageUrl}
+              alt="Görsel önizleme"
+              style={{ maxWidth: 220, maxHeight: 140, borderRadius: 8, border: "1px solid var(--border)", marginBottom: 10, display: "block", objectFit: "cover" }}
+            />
+          )}
+          <input ref={fileInputRef} type="file" accept="image/*" onChange={handleUpload} style={{ display: "none" }} />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="adm-btn"
+            style={{ fontSize: 12, padding: "6px 14px" }}
+          >
+            {uploading ? "Yükleniyor..." : form.imageUrl ? "Görseli Değiştir" : "Görsel Yükle"}
+          </button>
+          {form.imageUrl && (
+            <button
+              type="button"
+              onClick={() => setForm(f => ({ ...f, imageUrl: "" }))}
+              className="adm-btn"
+              style={{ fontSize: 12, padding: "6px 14px", marginLeft: 8 }}
+            >
+              Görseli Kaldır
+            </button>
+          )}
+        </div>
+
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, cursor: "pointer" }}>
           <input type="checkbox" checked={form.premium} onChange={e => setForm(f => ({ ...f, premium: e.target.checked }))} />
           <span style={{ fontSize: 13, color: "var(--ink)" }}>Premium içerik (üye girişi gerektirir)</span>
@@ -91,6 +168,15 @@ export default function EditArticle() {
           </button>
           <button onClick={() => router.push("/sys-k3m8p/makaleler")} className="adm-btn" style={{ padding: "10px 24px" }}>
             Geri
+          </button>
+          {/* Tehlikeli işlem: makaleyi kalıcı sil (onaylı) */}
+          <button
+            onClick={remove}
+            disabled={deleting}
+            className="adm-btn"
+            style={{ padding: "10px 24px", marginLeft: "auto", color: "var(--dn)", borderColor: "var(--dn)" }}
+          >
+            {deleting ? "Siliniyor..." : "Makaleyi Sil"}
           </button>
         </div>
       </div>

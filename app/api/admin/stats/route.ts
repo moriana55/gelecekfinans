@@ -36,30 +36,28 @@ export async function GET(req: NextRequest) {
   }
   const daily = Object.entries(dailyMap).map(([date, count]) => ({ date, count }));
 
-  // Top articles with titles
-  const articlePaths = topPages
-    .filter(p => p.path !== "/" && !p.path.startsWith("/kategori") && !p.path.startsWith("/sys-k3m8p") && !p.path.startsWith("/hakkimizda") && !p.path.startsWith("/iletisim"))
-    .slice(0, 15);
+  // "En Çok Okunan Makaleler" — YALNIZCA gerçek makale path'leri.
+  // Tek segmentli path'leri ("/<slug>") aday al, DB'de Article.slug ile eşleşmeyenleri
+  // (kategori sayfaları /altin /doviz, araç sayfaları /araclar, sabit sayfalar vb.) ELE.
+  const candidateSlugs = topPages
+    .filter(p => /^\/[^/]+$/.test(p.path) && p.path !== "/")
+    .map(p => p.path.replace(/^\//, ""));
 
-  const slugs = articlePaths.map(p => p.path.replace(/^\//, ""));
-  const articles = slugs.length > 0
+  const articles = candidateSlugs.length > 0
     ? await prisma.article.findMany({
-        where: { slug: { in: slugs } },
+        where: { slug: { in: candidateSlugs } },
         select: { slug: true, title: true, category: true },
       })
     : [];
   const articleMap = new Map(articles.map(a => [a.slug, a]));
 
-  const topArticles = articlePaths.map(p => {
+  // Sadece DB'de karşılığı olan makaleler kalır → kategori/araç sayfaları otomatik elenir.
+  const topArticles = topPages.flatMap(p => {
     const slug = p.path.replace(/^\//, "");
     const article = articleMap.get(slug);
-    return {
-      path: p.path,
-      views: p._count.path,
-      title: article?.title || slug,
-      category: article?.category || null,
-    };
-  });
+    if (!article) return [];
+    return [{ path: p.path, views: p._count.path, title: article.title, category: article.category }];
+  }).slice(0, 10);
 
   return NextResponse.json({
     totalViews,

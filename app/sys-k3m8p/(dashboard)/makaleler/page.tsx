@@ -67,6 +67,21 @@ export default function ArticleList() {
     setPage(1);
   }
 
+  // Tek bir makaleyi siler (onaylı), başarılıysa listeden çıkarır + cache'i tazeler.
+  async function deleteArticle(id: string, title: string) {
+    if (!confirm(`"${title.slice(0, 50)}" makalesi kalıcı olarak silinecek. Emin misin?`)) return;
+    const res = await fetch(`/api/admin/articles/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      alert(d.error || "Makale silinemedi.");
+      return;
+    }
+    setArticles(prev => prev.filter(a => a.id !== id));
+    setTotal(t => Math.max(0, t - 1));
+    setSelected(prev => { const n = new Set(prev); n.delete(id); return n; });
+    await fetch("/api/admin/revalidate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
+  }
+
   return (
     <div>
       <div className="adm-page-head">
@@ -146,6 +161,12 @@ export default function ArticleList() {
                 <td style={{ textAlign: "right" }}>
                   <Link href={`/${a.slug}`} target="_blank" style={{ marginRight: 8, fontSize: 10, color: "var(--muted)" }}>Önizle</Link>
                   <Link href={`/sys-k3m8p/makaleler/${a.id}`} style={{ fontSize: 10, color: "var(--accent)" }}>Düzenle</Link>
+                  <button
+                    onClick={() => deleteArticle(a.id, a.title)}
+                    style={{ marginLeft: 8, fontSize: 10, color: "var(--dn)", background: "none", border: "none", cursor: "pointer", fontWeight: 600, padding: 0 }}
+                  >
+                    Sil
+                  </button>
                 </td>
               </tr>
             ))}

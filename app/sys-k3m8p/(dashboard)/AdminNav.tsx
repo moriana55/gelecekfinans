@@ -61,6 +61,16 @@ const SECTIONS: { lab: string; items: NavItem[] }[] = [
     lab: "Veri & İçerik",
     items: [
       {
+        href: "/sys-k3m8p/arastir",
+        label: "Haber Araştır",
+        icon: (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" />
+          </svg>
+        ),
+      },
+      {
         href: "/sys-k3m8p/analytics",
         label: "Analytics",
         icon: (
