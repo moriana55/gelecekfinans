@@ -71,7 +71,7 @@ export default function ArticleList() {
     <div>
       <div className="adm-page-head">
         <h1 className="adm-h1">Makaleler <span className="adm-count">({total})</span></h1>
-        <Link href="/admin/yeni" className="adm-btn adm-btn-primary">
+        <Link href="/sys-k3m8p/yeni" className="adm-btn adm-btn-primary">
           + Yeni Makale
         </Link>
       </div>
@@ -125,7 +125,7 @@ export default function ArticleList() {
                   <input type="checkbox" checked={selected.has(a.id)} onChange={() => toggleSelect(a.id)} />
                 </td>
                 <td style={{ maxWidth: 300 }}>
-                  <Link href={`/admin/makaleler/${a.id}`} style={{ color: "var(--ink)" }}>
+                  <Link href={`/sys-k3m8p/makaleler/${a.id}`} style={{ color: "var(--ink)" }}>
                     {a.title.slice(0, 55)}{a.title.length > 55 ? "..." : ""}
                   </Link>
                   {a.duplicateOf && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--dn)" }}>DUP</span>}
@@ -145,7 +145,7 @@ export default function ArticleList() {
                 <td><span style={{ color: STATUS_COLORS[a.status] || "var(--muted)", fontSize: 11, fontFamily: "var(--mono)" }}>{a.status}</span></td>
                 <td style={{ textAlign: "right" }}>
                   <Link href={`/${a.slug}`} target="_blank" style={{ marginRight: 8, fontSize: 10, color: "var(--muted)" }}>Önizle</Link>
-                  <Link href={`/admin/makaleler/${a.id}`} style={{ fontSize: 10, color: "var(--accent)" }}>Düzenle</Link>
+                  <Link href={`/sys-k3m8p/makaleler/${a.id}`} style={{ fontSize: 10, color: "var(--accent)" }}>Düzenle</Link>
                 </td>
               </tr>
             ))}

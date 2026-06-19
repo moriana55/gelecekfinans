@@ -14,7 +14,7 @@ const SECTIONS: { lab: string; items: NavItem[] }[] = [
     lab: "Yönetim",
     items: [
       {
-        href: "/admin",
+        href: "/sys-k3m8p",
         label: "Genel Bakış",
         exact: true,
         icon: (
@@ -27,7 +27,7 @@ const SECTIONS: { lab: string; items: NavItem[] }[] = [
         ),
       },
       {
-        href: "/admin/makaleler",
+        href: "/sys-k3m8p/makaleler",
         label: "Makaleler",
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -37,7 +37,7 @@ const SECTIONS: { lab: string; items: NavItem[] }[] = [
         ),
       },
       {
-        href: "/admin/yeni",
+        href: "/sys-k3m8p/yeni",
         label: "Yeni Makale",
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -46,7 +46,7 @@ const SECTIONS: { lab: string; items: NavItem[] }[] = [
         ),
       },
       {
-        href: "/admin/son-dakika",
+        href: "/sys-k3m8p/son-dakika",
         label: "Son Dakika",
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -61,7 +61,7 @@ const SECTIONS: { lab: string; items: NavItem[] }[] = [
     lab: "Veri & İçerik",
     items: [
       {
-        href: "/admin/analytics",
+        href: "/sys-k3m8p/analytics",
         label: "Analytics",
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -71,7 +71,7 @@ const SECTIONS: { lab: string; items: NavItem[] }[] = [
         ),
       },
       {
-        href: "/admin/aboneler",
+        href: "/sys-k3m8p/aboneler",
         label: "Aboneler",
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -82,7 +82,7 @@ const SECTIONS: { lab: string; items: NavItem[] }[] = [
         ),
       },
       {
-        href: "/admin/bot",
+        href: "/sys-k3m8p/bot",
         label: "Bot Durumu",
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -92,7 +92,7 @@ const SECTIONS: { lab: string; items: NavItem[] }[] = [
         ),
       },
       {
-        href: "/admin/ayarlar",
+        href: "/sys-k3m8p/ayarlar",
         label: "Ayarlar",
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

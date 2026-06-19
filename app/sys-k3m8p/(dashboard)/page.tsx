@@ -50,7 +50,7 @@ export default async function AdminDashboard() {
           <div className="adm-card-b" style={{ paddingTop: 4, paddingBottom: 6 }}>
             {lowSeoArticles.map(a => (
               <div key={a.id} className="adm-trow">
-                <Link href={`/admin/makaleler/${a.id}`} style={{ fontSize: 13, color: "var(--ink2)", flex: 1 }}>
+                <Link href={`/sys-k3m8p/makaleler/${a.id}`} style={{ fontSize: 13, color: "var(--ink2)", flex: 1 }}>
                   {a.title.slice(0, 60)}{a.title.length > 60 ? "..." : ""}
                 </Link>
                 <span style={{ fontSize: 13, fontWeight: 700, color: "var(--dn)", marginLeft: 12, fontFamily: "var(--mono)" }}>{a.seoScore}</span>

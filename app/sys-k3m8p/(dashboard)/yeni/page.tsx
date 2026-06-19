@@ -26,7 +26,7 @@ export default function NewArticle() {
       setSaving(false);
       return;
     }
-    router.push(`/admin/makaleler/${data.article.id}`);
+    router.push(`/sys-k3m8p/makaleler/${data.article.id}`);
   }
 
   return (

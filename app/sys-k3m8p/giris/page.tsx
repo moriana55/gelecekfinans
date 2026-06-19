@@ -19,7 +19,7 @@ export default function AdminLogin() {
       setError("Geçersiz e-posta veya şifre");
       setLoading(false);
     } else {
-      router.push("/admin");
+      router.push("/sys-k3m8p");
     }
   }
 

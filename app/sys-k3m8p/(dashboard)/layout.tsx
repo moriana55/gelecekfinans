@@ -6,7 +6,7 @@ import AdminNav from "./AdminNav";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
-  if (!session) redirect("/admin/giris");
+  if (!session) redirect("/sys-k3m8p/giris");
 
   return (
     <div className="adm-shell">

@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 
   // Top articles with titles
   const articlePaths = topPages
-    .filter(p => p.path !== "/" && !p.path.startsWith("/kategori") && !p.path.startsWith("/admin") && !p.path.startsWith("/hakkimizda") && !p.path.startsWith("/iletisim"))
+    .filter(p => p.path !== "/" && !p.path.startsWith("/kategori") && !p.path.startsWith("/sys-k3m8p") && !p.path.startsWith("/hakkimizda") && !p.path.startsWith("/iletisim"))
     .slice(0, 15);
 
   const slugs = articlePaths.map(p => p.path.replace(/^\//, ""));

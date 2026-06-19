@@ -89,7 +89,7 @@ export default function EditArticle() {
           <button onClick={save} disabled={saving} className="adm-btn adm-btn-primary" style={{ padding: "10px 24px" }}>
             {saving ? "Kaydediliyor..." : "Kaydet"}
           </button>
-          <button onClick={() => router.push("/admin/makaleler")} className="adm-btn" style={{ padding: "10px 24px" }}>
+          <button onClick={() => router.push("/sys-k3m8p/makaleler")} className="adm-btn" style={{ padding: "10px 24px" }}>
             Geri
           </button>
         </div>

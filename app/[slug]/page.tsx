@@ -128,7 +128,8 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
               Bu analiz GelecekFinans üyelerine özeldir. Ücretsiz hesabınızla
               tüm premium içeriklere erişebilirsiniz.
             </p>
-            <Link href="/admin/giris" className="btn">Üye Girişi</Link>
+            {/* Yönetim giriş bağlantısı gizli olduğundan public sayfada ifşa edilmez. */}
+            <span className="premium-note">Yakında üyelik sistemi aktif olacak.</span>
           </div>
         </div>
       )}

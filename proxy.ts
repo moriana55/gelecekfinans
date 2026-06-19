@@ -4,11 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function proxy(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   if (!token) {
-    return NextResponse.redirect(new URL("/admin/giris", req.url));
+    return NextResponse.redirect(new URL("/sys-k3m8p/giris", req.url));
   }
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/((?!giris).*)"],
+  matcher: ["/sys-k3m8p/((?!giris).*)"],
 };
