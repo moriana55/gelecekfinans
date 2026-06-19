@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
     "db:generate": "prisma generate",
@@ -45,5 +46,8 @@
     "tailwindcss": "^4",
     "tsx": "^4.22.1",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
