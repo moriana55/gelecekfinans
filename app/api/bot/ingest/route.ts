@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
       const seo = analyzeSeo({
         title: item.title, meta: item.meta, keyword: item.keyword || null,
-        content: item.content, slug,
+        content: item.content, slug, imageUrl: item.image_path || null,
       });
 
       const article = await prisma.article.create({
@@ -65,9 +65,9 @@ export async function POST(req: NextRequest) {
           imageUrl: item.image_path || null,
           source: item.source || null,
           articleSource: "BOT",
-          status: seo.score >= 50 ? "PUBLISHED" : "DRAFT",
+          status: "DRAFT", // Bot makaleleri DRAFT gelir; owner görsel ekleyip elle yayınlar
           seoScore: seo.score,
-          publishedAt: seo.score >= 50 ? new Date(item.created_at || Date.now()) : null,
+          publishedAt: null,
           createdAt: new Date(item.created_at || Date.now()),
         },
       });

@@ -104,6 +104,9 @@ HABER FORMATI:
 SEO KURALLARI:
 - En az 4 tane ## (H2) başlığı kullan
 - Focus keyword'ü ilk paragrafta ve meta description'da kullan
+- Focus keyword'ü DOĞAL kullan; ASLA tekrar tekrar zorla yazma. Yoğunluk %2.5'i AŞMASIN
+  (ortalama her 40-50 kelimede en fazla 1 kez). Aynı kelimeyi tekrarlamak yerine eş anlamlı,
+  zamir ("o", "bu gelişme", "söz konusu karar") ve farklı ifadelerle çeşitlendir.
 - Makale içine madde listesi ekle
 - Sonuna 2 soruluk FAQ ekle (## Sıkça Sorulan Sorular)
 
@@ -223,6 +226,8 @@ YAZIM TARZI:
 - Haberi derinleştir: arka plan, bağlam, uzman/yetkili görüşleri, geçmişle karşılaştırma
 - H2 başlıkları kullan (## ile), en az 3 H2 bölümü olsun
 - ÖZGÜN İÇERİK: Kaynak metinlerden cümle kopyalama, haberi kendi cümlelerinle yaz
+- ANAHTAR KELİME DOĞALLIĞI: Focus keyword'ü zorla tekrar etme; yoğunluğu %2.5'in altında tut.
+  Aynı terimi tekrar yazmak yerine eş anlamlı, zamir ve farklı ifadelerle çeşitlendir (keyword stuffing yapma).
 
 HABER ODAĞI:
 - Kim ne dedi, ne karar aldı, ne açıkladı — SOMUT OLAYLAR yaz

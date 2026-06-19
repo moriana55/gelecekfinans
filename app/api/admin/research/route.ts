@@ -8,6 +8,7 @@ import { analyzeSeo } from "@/lib/seo";
 import { writeArticle } from "@/lib/bot/writer";
 import { getArticleImage } from "@/lib/bot/images";
 import { autoLink } from "@/lib/bot/linker";
+import { ensureExternalLink } from "@/lib/bot/external-link";
 import type { Topic } from "@/lib/bot/topics";
 
 // Tek makale üretimi 120sn altında kalır; güvenli sınır.
@@ -108,10 +109,15 @@ export async function POST(req: NextRequest) {
     }
 
     article.content = await autoLink(article.content, article.category, slug);
+    // Harici link garantisi (yazar harici link eklemediyse resmi kaynak ekle).
+    article.content = ensureExternalLink(article.content, article.category, article.keyword);
+
+    // Görseli önceden hesapla: hem SEO görsel kontrolünü besler hem DB'ye yazılır.
+    const imageUrl = await getArticleImage({ title: article.title, keyword: article.keyword, category: article.category }) || null;
 
     const seo = analyzeSeo({
       title: article.title, meta: article.meta,
-      keyword: article.keyword, content: article.content, slug,
+      keyword: article.keyword, content: article.content, slug, imageUrl,
     });
 
     const created = await prisma.article.create({
@@ -122,7 +128,7 @@ export async function POST(req: NextRequest) {
         keyword: article.keyword || null,
         category: article.category,
         content: article.content,
-        imageUrl: await getArticleImage({ title: article.title, keyword: article.keyword, category: article.category }) || null,
+        imageUrl,
         source: article.source,
         articleSource: "BOT",
         // Araştırmadan üretilen makale her zaman TASLAK olarak kaydedilir;

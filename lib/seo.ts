@@ -21,6 +21,8 @@ export function analyzeSeo(article: {
   keyword?: string | null;
   content: string;
   slug: string;
+  // Makalenin kapak görseli (içeriğe gömülü <img> değil). Varsa görsel kontrolü "geçti" sayılır.
+  imageUrl?: string | null;
 }): SeoResult {
   const issues: string[] = [];
   const passed: string[] = [];
@@ -152,8 +154,12 @@ export function analyzeSeo(article: {
   }
 
   // Images
+  // İçerikte <img> yoksa ama makalenin kapak görseli (imageUrl) varsa, kapak görseli
+  // makalenin görseli sayılır → "İçerikte görsel yok" sorununu EKLEME, geçti say.
   const imgCount = (article.content.match(/<img/gi) || []).length;
-  if (imgCount === 0 && wordCount > 200) {
+  if (imgCount === 0 && article.imageUrl) {
+    passed.push("Kapak görseli mevcut");
+  } else if (imgCount === 0 && wordCount > 200) {
     issues.push("İçerikte görsel yok");
     score -= 5;
   } else if (imgCount > 0) {

@@ -66,8 +66,8 @@ export async function POST(req: NextRequest) {
     }, { status: 409 });
   }
 
-  // SEO score
-  const seo = analyzeSeo({ title, meta, keyword, content, slug });
+  // SEO score (kapak görseli varsa görsel kontrolüne dahil edilir)
+  const seo = analyzeSeo({ title, meta, keyword, content, slug, imageUrl });
 
   const article = await prisma.article.create({
     data: {
