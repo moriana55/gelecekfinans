@@ -24,24 +24,23 @@ export default function AdminLogin() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#fafafa" }}>
-      <form onSubmit={handleSubmit} style={{ background: "#fff", padding: 40, borderRadius: 12, width: 380, border: "1px solid #e5e5e5", boxShadow: "0 8px 32px rgba(0,0,0,.06)" }}>
-        <h1 style={{ fontFamily: "var(--display)", fontSize: 24, fontWeight: 800, color: "#111", marginBottom: 24 }}>
-          Admin Giriş
+    <div className="adm-login-wrap">
+      <form onSubmit={handleSubmit} className="adm-login-card">
+        <div className="adm-login-mk">GF</div>
+        <h1 style={{ fontFamily: "var(--display)", fontSize: 24, fontWeight: 700, color: "var(--ink)", marginBottom: 4, letterSpacing: "-.01em" }}>
+          Yönetim Girişi
         </h1>
-        {error && <p style={{ color: "#dc2626", fontSize: 13, marginBottom: 12 }}>{error}</p>}
+        <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 24 }}>Gelecek Finans yönetim paneli</p>
+        {error && <p style={{ color: "var(--dn)", fontSize: 13, marginBottom: 12 }}>{error}</p>}
         <label style={{ display: "block", marginBottom: 16 }}>
-          <span style={{ fontSize: 11, color: "#888", display: "block", marginBottom: 4 }}>E-posta</span>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-            style={{ width: "100%", padding: "10px 12px", background: "#fafafa", border: "1px solid #ddd", borderRadius: 6, color: "#111", fontSize: 14 }} />
+          <span className="adm-label">E-posta</span>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="adm-input" />
         </label>
         <label style={{ display: "block", marginBottom: 24 }}>
-          <span style={{ fontSize: 11, color: "#888", display: "block", marginBottom: 4 }}>Şifre</span>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-            style={{ width: "100%", padding: "10px 12px", background: "#fafafa", border: "1px solid #ddd", borderRadius: 6, color: "#111", fontSize: 14 }} />
+          <span className="adm-label">Şifre</span>
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} required className="adm-input" />
         </label>
-        <button type="submit" disabled={loading}
-          style={{ width: "100%", padding: "12px", background: "#c73030", color: "#fff", border: "none", borderRadius: 6, fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+        <button type="submit" disabled={loading} className="adm-btn adm-btn-primary" style={{ width: "100%", justifyContent: "center", padding: "12px" }}>
           {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
         </button>
       </form>

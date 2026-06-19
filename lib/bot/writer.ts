@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { CATEGORY_PROMPTS, ARTICLE_WORDS, ARTICLE_MIN_WORDS } from "./config";
 import type { Topic } from "./topics";
+import { XMLParser } from "fast-xml-parser";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -13,7 +14,6 @@ async function getLivePrices(): Promise<string> {
       fetch("https://www.tcmb.gov.tr/kurlar/today.xml").then(r => r.text()),
       fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd,try").then(r => r.json()),
     ]);
-    const { XMLParser } = require("fast-xml-parser");
     const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
     const xml = parser.parse(tcmbRes);
     const kurlar = xml?.Tarih_Date?.Currency || [];
@@ -56,9 +56,8 @@ function countWords(text: string): number {
 }
 
 async function buildPrompt(topic: Topic, targetWords: number): Promise<string> {
-  const extra = CATEGORY_PROMPTS[topic.category] || {};
-  const struct = extra.structure || "Mevcut Durum → Analiz → Türkiye Etkisi → Öngörü";
   const prices = await getLivePrices();
+  const struct = CATEGORY_PROMPTS[topic.category]?.structure || "";
 
   return `HABERİ YAZ — Konu: ${topic.title}
 Kaynak özet: ${topic.summary}
@@ -71,7 +70,10 @@ Haberin odağı: KİM NE DEDİ, NE KARAR ALDI, NE AÇIKLADI — somut olay ve ge
 GÜNCEL PİYASA VERİLERİ (referans olarak kullan, haberin ana konusu yapma):
 ${prices}
 Kur/fiyat yazarken MUTLAKA yukarıdaki güncel verileri kullan, kafandan uydurma.
-
+${struct ? `
+BÖLÜM YAPISI (${topic.category} kategorisine özel — ## (H2) başlıklarını bu akışa göre kur):
+${struct}
+` : ""}
 HABER FORMATI:
 1. SEO başlığı (55-62 karakter) — "X şunu açıkladı", "Y kararı alındı" gibi haber başlığı
 2. Meta description (150-160 karakter, focus keyword içersin)

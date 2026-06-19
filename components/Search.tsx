@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 interface Article { title: string; meta: string; category: string; slug: string; image_path: string | null; }
@@ -14,6 +14,7 @@ export default function Search() {
   const [q, setQ]             = useState("");
   const [articles, setArticles] = useState<Article[]>([]);
   const [idx, setIdx]         = useState(0);
+  const [prevQ, setPrevQ]     = useState(q);
   const inputRef              = useRef<HTMLInputElement>(null);
   const router                = useRouter();
 
@@ -21,15 +22,15 @@ export default function Search() {
     fetch("/api/articles").then(r => r.json()).then(setArticles).catch(() => {});
   }, []);
 
-  const results = q.trim().length > 1
+  const results = useMemo(() => q.trim().length > 1
     ? articles.filter(a =>
         a.title.toLowerCase().includes(q.toLowerCase()) ||
         a.category.toLowerCase().includes(q.toLowerCase())
       ).slice(0, 8)
-    : [];
+    : [], [q, articles]);
 
   const close = useCallback(() => { setOpen(false); setQ(""); setIdx(0); }, []);
-  const go    = (slug: string) => { router.push(`/${slug}`); close(); };
+  const go    = useCallback((slug: string) => { router.push(`/${slug}`); close(); }, [router, close]);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -44,10 +45,12 @@ export default function Search() {
     };
     window.addEventListener("keydown", down);
     return () => window.removeEventListener("keydown", down);
-  }, [open, results, idx, close]);
+  }, [open, results, idx, close, go]);
 
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 50); }, [open]);
-  useEffect(() => { setIdx(0); }, [q]);
+  // Sorgu değişince seçili index'i render sırasında sıfırla (effect yerine —
+  // React'in "değer değişiminde state ayarla" önerilen pattern'i).
+  if (q !== prevQ) { setPrevQ(q); setIdx(0); }
 
   if (!open) return (
     <button className="search-btn" onClick={() => setOpen(true)}>

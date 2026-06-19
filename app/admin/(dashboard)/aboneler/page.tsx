@@ -29,6 +29,7 @@ export default function SubscribersPage() {
       .finally(() => setLoading(false));
   }, [filter]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- mount/filtre değişiminde veri çek (kasıtlı)
   useEffect(() => { fetchSubs(); }, [fetchSubs]);
 
   async function toggleSub(id: string, active: boolean) {
@@ -61,11 +62,11 @@ export default function SubscribersPage() {
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#111" }}>
-          Aboneler <span style={{ color: "#999", fontSize: 14, fontWeight: 400 }}>({activeCount} aktif / {confirmedCount} onaylı / {total} toplam)</span>
+      <div className="adm-page-head">
+        <h1 className="adm-h1">
+          Aboneler <span className="adm-count">({activeCount} aktif / {confirmedCount} onaylı / {total} toplam)</span>
         </h1>
-        <button onClick={exportCsv} style={{ padding: "8px 16px", background: "#e5e5e5", color: "#333", border: "none", borderRadius: 6, fontSize: 12, cursor: "pointer" }}>
+        <button onClick={exportCsv} className="adm-btn">
           CSV İndir
         </button>
       </div>
@@ -74,47 +75,47 @@ export default function SubscribersPage() {
 
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         {(["all", "active", "inactive"] as const).map(f => (
-          <button key={f} onClick={() => setFilter(f)}
-            style={{ padding: "6px 12px", fontSize: 11, borderRadius: 6, border: "1px solid #ddd", background: filter === f ? "#111" : "transparent", color: filter === f ? "#fff" : "#888", cursor: "pointer" }}>
+          <button key={f} onClick={() => setFilter(f)} className={`adm-pill${filter === f ? " on" : ""}`}>
             {f === "all" ? "Tümü" : f === "active" ? "Aktif" : "Pasif"}
           </button>
         ))}
       </div>
 
-      {loading ? <p style={{ color: "#999" }}>Yükleniyor...</p> : (
-        <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
+      {loading ? <p style={{ color: "var(--muted)" }}>Yükleniyor...</p> : (
+        <div className="adm-card"><div className="adm-card-b">
+        <table className="adm-table">
           <thead>
-            <tr style={{ borderBottom: "1px solid #e5e5e5", color: "#999" }}>
-              <th style={{ textAlign: "left", padding: "10px 0" }}>E-posta</th>
-              <th style={{ textAlign: "left" }}>Tercihler</th>
-              <th style={{ textAlign: "left" }}>Durum</th>
-              <th style={{ textAlign: "left" }}>Kayıt Tarihi</th>
+            <tr>
+              <th>E-posta</th>
+              <th>Tercihler</th>
+              <th>Durum</th>
+              <th>Kayıt Tarihi</th>
               <th style={{ textAlign: "right" }}>İşlem</th>
             </tr>
           </thead>
           <tbody>
             {subs.map(s => (
-              <tr key={s.id} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                <td style={{ padding: "10px 0", color: "#222" }}>{s.email}</td>
-                <td style={{ color: "#666", fontSize: 11 }}>
+              <tr key={s.id}>
+                <td style={{ color: "var(--ink)" }}>{s.email}</td>
+                <td style={{ color: "var(--ink2)", fontSize: 11 }}>
                   {s.preferences && s.preferences.length > 0 ? s.preferences.join(", ") : "Tümü"}
                 </td>
                 <td>
-                  <span style={{ fontSize: 11, color: s.active ? "#16a34a" : "#999" }}>
+                  <span style={{ fontSize: 11, color: s.active ? "var(--up)" : "var(--muted)" }}>
                     {s.active ? "Aktif" : "Pasif"}
                   </span>
                   {s.confirmed === false && (
                     <span style={{ fontSize: 9, color: "#d97706", marginLeft: 6 }}>(onaysız)</span>
                   )}
                 </td>
-                <td style={{ color: "#888", fontSize: 12 }}>{new Date(s.createdAt).toLocaleDateString("tr-TR")}</td>
+                <td style={{ color: "var(--muted)", fontSize: 12, fontFamily: "var(--mono)" }}>{new Date(s.createdAt).toLocaleDateString("tr-TR")}</td>
                 <td style={{ textAlign: "right" }}>
                   <button onClick={() => toggleSub(s.id, s.active)}
-                    style={{ fontSize: 10, color: s.active ? "#d97706" : "#16a34a", background: "none", border: "none", cursor: "pointer", marginRight: 8 }}>
+                    style={{ fontSize: 10, color: s.active ? "#d97706" : "var(--up)", background: "none", border: "none", cursor: "pointer", marginRight: 8 }}>
                     {s.active ? "Pasifleştir" : "Aktifleştir"}
                   </button>
                   <button onClick={() => deleteSub(s.id)}
-                    style={{ fontSize: 10, color: "#dc2626", background: "none", border: "none", cursor: "pointer" }}>
+                    style={{ fontSize: 10, color: "var(--dn)", background: "none", border: "none", cursor: "pointer" }}>
                     Sil
                   </button>
                 </td>
@@ -122,9 +123,10 @@ export default function SubscribersPage() {
             ))}
           </tbody>
         </table>
+        </div></div>
       )}
 
-      {!loading && subs.length === 0 && <p style={{ color: "#999", fontSize: 13, marginTop: 12 }}>Abone bulunamadı.</p>}
+      {!loading && subs.length === 0 && <p style={{ color: "var(--muted)", fontSize: 13, marginTop: 12 }}>Abone bulunamadı.</p>}
     </div>
   );
 }
@@ -162,41 +164,39 @@ function CampaignSender() {
   }
 
   return (
-    <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 10, padding: 16, marginBottom: 20 }}>
-      <h2 style={{ fontSize: 14, fontWeight: 700, color: "#111", marginBottom: 12 }}>Segment + A/B Bülten Gönder</h2>
+    <div className="adm-card">
+      <div className="adm-card-h"><div><b>Segment + A/B Bülten Gönder</b><small>Onaylı + aktif abonelere kampanya gönder</small></div></div>
+      <div className="adm-card-b">
       <div style={{ display: "grid", gridTemplateColumns: "180px 1fr 1fr", gap: 10, alignItems: "end" }}>
         <div>
-          <label style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>Segment</label>
-          <select value={segment} onChange={e => setSegment(e.target.value)}
-            style={{ width: "100%", padding: 8, border: "1px solid #ddd", borderRadius: 6, fontSize: 13, background: "#fff", color: "#111" }}>
+          <label className="adm-label">Segment</label>
+          <select value={segment} onChange={e => setSegment(e.target.value)} className="adm-select">
             <option value="">Tüm aboneler</option>
             {SEGMENTS.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div>
-          <label style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>Konu A</label>
+          <label className="adm-label">Konu A</label>
           <input value={subjectA} onChange={e => setSubjectA(e.target.value)} maxLength={150}
-            placeholder="Günlük bülten — konu satırı"
-            style={{ width: "100%", padding: 8, border: "1px solid #ddd", borderRadius: 6, fontSize: 13, color: "#111" }} />
+            placeholder="Günlük bülten — konu satırı" className="adm-input" />
         </div>
         <div>
-          <label style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>Konu B (A/B testi — opsiyonel)</label>
+          <label className="adm-label">Konu B (A/B testi — opsiyonel)</label>
           <input value={subjectB} onChange={e => setSubjectB(e.target.value)} maxLength={150}
-            placeholder="Alternatif konu satırı"
-            style={{ width: "100%", padding: 8, border: "1px solid #ddd", borderRadius: 6, fontSize: 13, color: "#111" }} />
+            placeholder="Alternatif konu satırı" className="adm-input" />
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>
-        <button onClick={send} disabled={sending}
-          style={{ padding: "8px 18px", background: "#c73030", color: "#fff", border: "none", borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+        <button onClick={send} disabled={sending} className="adm-btn adm-btn-primary">
           {sending ? "Gönderiliyor..." : "Gönder"}
         </button>
-        {result && <span style={{ fontSize: 12, color: "#555" }}>{result}</span>}
+        {result && <span style={{ fontSize: 12, color: "var(--ink2)" }}>{result}</span>}
       </div>
-      <p style={{ fontSize: 10, color: "#999", marginTop: 8 }}>
+      <p style={{ fontSize: 10, color: "var(--muted)", marginTop: 8 }}>
         Yalnızca onaylı + aktif aboneler hedeflenir. Son 24 saatte yayımlanan
         {segment ? ` ${segment}` : ""} makaleleri kullanılır. RESEND_API_KEY yoksa gönderim no-op (loglanır).
       </p>
+      </div>
     </div>
   );
 }

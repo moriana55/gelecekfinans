@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
+import Sparkline from "./Sparkline";
 
 /**
  * KOMPAKT PİYASA WIDGET'I (sağ ray) — CNBC/Reuters tarzı küçük "Piyasalar" listesi.
@@ -21,14 +22,19 @@ import type { CSSProperties } from "react";
 
 interface Fiyatlar {
   tcmb?: { usd?: { satis?: number }; eur?: { satis?: number } };
-  gold?: { price?: number; pct?: number };
-  bist?: { price?: number; pct?: number };
+  gold?: { price?: number; pct?: number; sparkline?: number[] };
+  bist?: { price?: number; pct?: number; sparkline?: number[] };
   btc?: { price?: number; pct?: number };
+  usdHistory?: number[];
+  usdPct?: number;
+  eurHistory?: number[];
+  eurPct?: number;
 }
 interface Coin {
   symbol: string;
   current_price: number;
   price_change_percentage_24h: number;
+  sparkline_in_7d?: { price: number[] };
 }
 interface Row {
   name: string;
@@ -38,6 +44,7 @@ interface Row {
   pct?: number | null;
   prefix?: string;
   frac?: number;
+  sparkline?: number[];
 }
 
 const mono = "var(--mono), ui-monospace, monospace";
@@ -58,7 +65,7 @@ function Pct({ v }: { v: number | null | undefined }) {
   if (v == null) return <span style={{ ...s, color: "var(--muted)" }}>—</span>;
   const up = v >= 0;
   return (
-    <span style={{ ...s, color: up ? "#15803d" : "#dc2626" }}>
+    <span style={{ ...s, color: up ? "#16a34a" : "#dc2626" }}>
       {up ? "▲" : "▼"} {Math.abs(v).toFixed(2)}%
     </span>
   );
@@ -66,7 +73,7 @@ function Pct({ v }: { v: number | null | undefined }) {
 
 export default function MarketMini() {
   const [f, setF] = useState<Fiyatlar>({});
-  const [btc, setBtc] = useState<{ price?: number; pct?: number }>({});
+  const [btc, setBtc] = useState<{ price?: number; pct?: number; sparkline?: number[] }>({});
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -81,7 +88,7 @@ export default function MarketMini() {
         .then((d: Coin[]) => {
           if (!Array.isArray(d)) return;
           const b = d.find((c) => c.symbol?.toLowerCase() === "btc");
-          if (b) setBtc({ price: b.current_price, pct: b.price_change_percentage_24h });
+          if (b) setBtc({ price: b.current_price, pct: b.price_change_percentage_24h, sparkline: b.sparkline_in_7d?.price });
         })
         .catch(() => {});
     };
@@ -91,11 +98,11 @@ export default function MarketMini() {
   }, []);
 
   const rows: Row[] = [
-    { name: "Dolar", sub: "USD/TRY", href: "/doviz/usd-try", price: f.tcmb?.usd?.satis, prefix: "₺", frac: 4 },
-    { name: "Euro", sub: "EUR/TRY", href: "/doviz/eur-try", price: f.tcmb?.eur?.satis, prefix: "₺", frac: 4 },
-    { name: "Gram Altın", sub: "24 ayar", href: "/altin/gram-altin", price: f.gold?.price, pct: f.gold?.pct, prefix: "₺", frac: 2 },
-    { name: "Bitcoin", sub: "BTC/USD", href: "/kripto", price: btc.price ?? f.btc?.price, pct: btc.pct ?? f.btc?.pct, prefix: "₺", frac: 0 },
-    { name: "BIST 100", sub: "Endeks", href: "/doviz", price: f.bist?.price, pct: f.bist?.pct, prefix: "", frac: 0 },
+    { name: "Dolar", sub: "USD/TRY", href: "/doviz/usd-try", price: f.tcmb?.usd?.satis, pct: f.usdPct, sparkline: f.usdHistory, prefix: "₺", frac: 4 },
+    { name: "Euro", sub: "EUR/TRY", href: "/doviz/eur-try", price: f.tcmb?.eur?.satis, pct: f.eurPct, sparkline: f.eurHistory, prefix: "₺", frac: 4 },
+    { name: "Gram Altın", sub: "24 ayar", href: "/altin/gram-altin", price: f.gold?.price, pct: f.gold?.pct, sparkline: f.gold?.sparkline, prefix: "₺", frac: 2 },
+    { name: "Bitcoin", sub: "BTC/USD", href: "/kripto", price: btc.price ?? f.btc?.price, pct: btc.pct ?? f.btc?.pct, sparkline: btc.sparkline, prefix: "₺", frac: 0 },
+    { name: "BIST 100", sub: "Endeks", href: "/doviz", price: f.bist?.price, pct: f.bist?.pct, sparkline: f.bist?.sparkline, prefix: "", frac: 0 },
   ];
 
   return (
@@ -104,7 +111,7 @@ export default function MarketMini() {
       style={{
         borderRadius: 12,
         border: "1px solid var(--border)",
-        background: "var(--bg)",
+        background: "var(--paper)",
         boxShadow: "0 1px 2px rgba(15,23,42,.05)",
         overflow: "hidden",
       }}
@@ -152,7 +159,7 @@ export default function MarketMini() {
             href={r.href}
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr auto",
+              gridTemplateColumns: "1.1fr 80px 1fr",
               alignItems: "center",
               rowGap: 2,
               columnGap: 12,
@@ -170,6 +177,13 @@ export default function MarketMini() {
                 {r.sub}
               </span>
             </span>
+            <div style={{ width: 80, height: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {loaded && r.sparkline && r.sparkline.length > 1 ? (
+                <Sparkline data={r.sparkline} up={(r.pct ?? 0) >= 0} width={80} height={24} />
+              ) : (
+                <div style={{ fontFamily: mono, fontSize: 8, color: "var(--muted)", opacity: 0.4 }}>Yükleniyor...</div>
+              )}
+            </div>
             <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2 }}>
               <span
                 style={{

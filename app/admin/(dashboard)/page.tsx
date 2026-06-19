@@ -20,73 +20,88 @@ export default async function AdminDashboard() {
 
   return (
     <div>
-      <h1 style={{ fontSize: 24, fontWeight: 800, marginBottom: 24, color: "#111" }}>Dashboard</h1>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 16 }}>
-        <StatCard label="Toplam Makale" value={total} />
-        <StatCard label="Yayında" value={published} color="#16a34a" />
-        <StatCard label="Taslak" value={draft} color="#d97706" />
-        <StatCard label="Bugün Görüntüleme" value={todayViews} color="#2563eb" />
+      <div className="adm-page-head">
+        <div>
+          <h1 className="adm-h1">Genel Bakış</h1>
+          <p className="adm-sub" style={{ color: "var(--muted)", fontSize: 13, marginTop: 4 }}>Sitenin verilerini ve içerik akışını buradan yönet</p>
+        </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
-        <StatCard label="Ort. SEO Skoru" value={avgSeo} color={avgSeo >= 70 ? "#16a34a" : avgSeo >= 50 ? "#d97706" : "#dc2626"} />
-        <StatCard label="İç Linksiz Makale" value={noLinks} color={noLinks > 0 ? "#dc2626" : "#16a34a"} />
-        <StatCard label="Aboneler" value={subscriberCount} color="#0891b2" />
-        <StatCard label="Reddedilen" value={rejected} color="#dc2626" />
+      <div className="adm-stats">
+        <StatCard label="Toplam Makale" value={total} />
+        <StatCard label="Yayında" value={published} color="var(--up)" />
+        <StatCard label="Taslak" value={draft} color="#d97706" />
+        <StatCard label="Bugün Görüntüleme" value={todayViews} color="var(--accent)" />
+      </div>
+
+      <div className="adm-stats" style={{ marginBottom: 22 }}>
+        <StatCard label="Ort. SEO Skoru" value={avgSeo} color={avgSeo >= 70 ? "var(--up)" : avgSeo >= 50 ? "#d97706" : "var(--dn)"} />
+        <StatCard label="İç Linksiz Makale" value={noLinks} color={noLinks > 0 ? "var(--dn)" : "var(--up)"} />
+        <StatCard label="Aboneler" value={subscriberCount} color="var(--accent)" />
+        <StatCard label="Reddedilen" value={rejected} color="var(--dn)" />
       </div>
 
       {/* Low SEO Articles */}
       {lowSeoArticles.length > 0 && (
-        <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: 20, marginBottom: 24 }}>
-          <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: "#dc2626" }}>Düşük SEO Skorlu Makaleler</h2>
-          {lowSeoArticles.map(a => (
-            <div key={a.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #fee2e2" }}>
-              <Link href={`/admin/makaleler/${a.id}`} style={{ fontSize: 13, color: "#333", flex: 1 }}>
-                {a.title.slice(0, 60)}{a.title.length > 60 ? "..." : ""}
-              </Link>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#dc2626", marginLeft: 12 }}>{a.seoScore}</span>
-            </div>
-          ))}
+        <div className="adm-card" style={{ borderColor: "var(--dn-soft)" }}>
+          <div className="adm-card-h">
+            <div><b style={{ color: "var(--dn)" }}>Düşük SEO Skorlu Makaleler</b><small>Yayında ama optimizasyon gerekiyor</small></div>
+          </div>
+          <div className="adm-card-b" style={{ paddingTop: 4, paddingBottom: 6 }}>
+            {lowSeoArticles.map(a => (
+              <div key={a.id} className="adm-trow">
+                <Link href={`/admin/makaleler/${a.id}`} style={{ fontSize: 13, color: "var(--ink2)", flex: 1 }}>
+                  {a.title.slice(0, 60)}{a.title.length > 60 ? "..." : ""}
+                </Link>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--dn)", marginLeft: 12, fontFamily: "var(--mono)" }}>{a.seoScore}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 12, color: "#888" }}>Son Bot Çalışmaları</h2>
-      {botRuns.length === 0 ? (
-        <p style={{ color: "#999", fontSize: 13 }}>Henüz bot çalışması kaydı yok.</p>
-      ) : (
-        <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid #e5e5e5", color: "#999" }}>
-              <th style={{ padding: "8px 0", textAlign: "left" }}>Tarih</th>
-              <th style={{ textAlign: "left" }}>Bulunan</th>
-              <th style={{ textAlign: "left" }}>Eklenen</th>
-              <th style={{ textAlign: "left" }}>Duplicate</th>
-              <th style={{ textAlign: "left" }}>Durum</th>
-            </tr>
-          </thead>
-          <tbody>
-            {botRuns.map(r => (
-              <tr key={r.id} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                <td style={{ padding: "8px 0" }}>{r.startedAt.toLocaleString("tr-TR")}</td>
-                <td>{r.articlesFound}</td>
-                <td style={{ color: "#16a34a" }}>{r.articlesAdded}</td>
-                <td style={{ color: "#d97706" }}>{r.duplicatesSkipped}</td>
-                <td>{r.status === "completed" ? "✓" : "⏳"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <div className="adm-card">
+        <div className="adm-card-h">
+          <div><b>Son Bot Çalışmaları</b><small>Otomatik makale üretimi geçmişi</small></div>
+        </div>
+        <div className="adm-card-b">
+          {botRuns.length === 0 ? (
+            <p style={{ color: "var(--muted)", fontSize: 13 }}>Henüz bot çalışması kaydı yok.</p>
+          ) : (
+            <table className="adm-table">
+              <thead>
+                <tr>
+                  <th>Tarih</th>
+                  <th>Bulunan</th>
+                  <th>Eklenen</th>
+                  <th>Duplicate</th>
+                  <th>Durum</th>
+                </tr>
+              </thead>
+              <tbody>
+                {botRuns.map(r => (
+                  <tr key={r.id}>
+                    <td style={{ fontFamily: "var(--mono)", fontSize: 12 }}>{r.startedAt.toLocaleString("tr-TR")}</td>
+                    <td>{r.articlesFound}</td>
+                    <td style={{ color: "var(--up)" }}>{r.articlesAdded}</td>
+                    <td style={{ color: "#d97706" }}>{r.duplicatesSkipped}</td>
+                    <td>{r.status === "completed" ? "✓" : "⏳"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
 
 function StatCard({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
-    <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 10, padding: 20 }}>
-      <p style={{ fontSize: 11, color: "#999", marginBottom: 4 }}>{label}</p>
-      <p style={{ fontSize: 28, fontWeight: 800, color: color || "#111" }}>{value}</p>
+    <div className="adm-stat">
+      <div className="k">{label}</div>
+      <div className="v" style={color ? { color } : undefined}>{value}</div>
     </div>
   );
 }

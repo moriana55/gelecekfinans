@@ -65,7 +65,7 @@ export async function getTopics(limit = 20, category?: string): Promise<Topic[]>
   const errors = results.filter((r) => r.status === "rejected").length;
   if (errors > 0) console.log(`[topics] ${errors} RSS feed hata verdi`);
 
-  let filtered = category && category !== "otomatik"
+  const filtered = category && category !== "otomatik"
     ? topics.filter((t) => t.category === category)
     : topics;
 

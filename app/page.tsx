@@ -27,7 +27,6 @@ export default async function HomePage() {
     .sort((x, y) => y.v - x.v)
     .slice(0, 5)
     .map(x => x.a);
-  const ranked  = all.slice(6, 11);
   const recent  = all.slice(11, 23);
   const trending = Array.from(
     new Set(all.flatMap(a => (a.keyword ? a.keyword.split(/[,;]/) : [])).map(k => k.trim()).filter(Boolean))
@@ -75,7 +74,7 @@ export default async function HomePage() {
                     display: "flex",
                     flexDirection: "column",
                     gap: 8,
-                    background: "var(--bg)",
+                    background: "var(--paper)",
                     padding: "20px 20px 18px",
                     textDecoration: "none",
                   }}
@@ -112,7 +111,7 @@ export default async function HomePage() {
           {/* Kompakt "Piyasalar" widget'ı — dev board'un yerini alan, açıkça
               ikincil/küçük piyasa görünümü (USD/TRY, EUR/TRY, Gram Altın, BTC, BIST). */}
           <MarketMini />
-          <div style={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--bg)", boxShadow: "0 1px 2px rgba(15,23,42,.05)", padding: "16px 18px 8px" }}>
+          <div style={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--paper)", boxShadow: "0 1px 2px rgba(15,23,42,.05)", padding: "16px 18px 8px" }}>
             <div style={{ paddingBottom: 12, marginBottom: 4, borderBottom: "1px solid var(--border2)", fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>
               En Çok Okunan
             </div>
@@ -120,7 +119,7 @@ export default async function HomePage() {
           </div>
           <MoversRail />
           {trending.length > 0 && (
-            <div style={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--bg)", boxShadow: "0 1px 2px rgba(15,23,42,.05)", padding: "16px 18px 18px" }}>
+            <div style={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--paper)", boxShadow: "0 1px 2px rgba(15,23,42,.05)", padding: "16px 18px 18px" }}>
               <div style={{ paddingBottom: 12, marginBottom: 14, borderBottom: "1px solid var(--border2)", fontFamily: "var(--mono)", fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>
                 Gündemdekiler
               </div>
@@ -151,9 +150,9 @@ export default async function HomePage() {
               </div>
             </div>
           )}
-          <div style={{ minHeight: 280 }}>
-            <AdSlot position="sidebar" />
-          </div>
+          {/* Reklam kapalıyken hiç yer kaplamaz (AdSlot null döner); açıkken
+              .ad-slot-lg min-height ile alanı rezerve eder (CLS-güvenli). */}
+          <AdSlot position="sidebar" />
         </aside>
       </div>
 

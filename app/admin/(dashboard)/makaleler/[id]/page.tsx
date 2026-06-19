@@ -47,29 +47,28 @@ export default function EditArticle() {
     setSaving(false);
   }
 
-  if (loading) return <p style={{ color: "#999" }}>Yükleniyor...</p>;
+  if (loading) return <p style={{ color: "var(--muted)" }}>Yükleniyor...</p>;
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 32 }}>
       <div>
-        <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 20, color: "#111" }}>Makale Düzenle</h1>
+        <h1 className="adm-h1" style={{ marginBottom: 20, fontSize: 22 }}>Makale Düzenle</h1>
 
+        <div className="adm-card"><div className="adm-card-b">
         <Field label="Başlık" value={form.title} onChange={v => setForm(f => ({ ...f, title: v }))} />
         <Field label="Meta Açıklama" value={form.meta} onChange={v => setForm(f => ({ ...f, meta: v }))} />
         <Field label="Anahtar Kelime" value={form.keyword} onChange={v => setForm(f => ({ ...f, keyword: v }))} />
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
           <div>
-            <label style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>Kategori</label>
-            <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-              style={{ width: "100%", padding: "8px", background: "#fff", border: "1px solid #ddd", borderRadius: 6, color: "#111", fontSize: 13 }}>
+            <label className="adm-label">Kategori</label>
+            <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="adm-select">
               {["kripto", "borsa", "doviz", "altin", "ekonomi"].map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>
-            <label style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>Durum</label>
-            <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-              style={{ width: "100%", padding: "8px", background: "#fff", border: "1px solid #ddd", borderRadius: 6, color: "#111", fontSize: 13 }}>
+            <label className="adm-label">Durum</label>
+            <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className="adm-select">
               {["DRAFT", "PUBLISHED", "REJECTED", "ARCHIVED"].map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
@@ -79,45 +78,46 @@ export default function EditArticle() {
 
         <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, cursor: "pointer" }}>
           <input type="checkbox" checked={form.premium} onChange={e => setForm(f => ({ ...f, premium: e.target.checked }))} />
-          <span style={{ fontSize: 13, color: "#111" }}>Premium içerik (üye girişi gerektirir)</span>
+          <span style={{ fontSize: 13, color: "var(--ink)" }}>Premium içerik (üye girişi gerektirir)</span>
         </label>
 
-        <label style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>İçerik</label>
+        <label className="adm-label">İçerik</label>
         <EditorTabs content={form.content} onChange={v => setForm(f => ({ ...f, content: v }))} />
+        </div></div>
 
-        <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
-          <button onClick={save} disabled={saving}
-            style={{ padding: "10px 24px", background: "#c73030", color: "#fff", border: "none", borderRadius: 6, fontWeight: 600, cursor: "pointer" }}>
+        <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
+          <button onClick={save} disabled={saving} className="adm-btn adm-btn-primary" style={{ padding: "10px 24px" }}>
             {saving ? "Kaydediliyor..." : "Kaydet"}
           </button>
-          <button onClick={() => router.push("/admin/makaleler")}
-            style={{ padding: "10px 24px", background: "transparent", color: "#888", border: "1px solid #ddd", borderRadius: 6, cursor: "pointer" }}>
+          <button onClick={() => router.push("/admin/makaleler")} className="adm-btn" style={{ padding: "10px 24px" }}>
             Geri
           </button>
         </div>
       </div>
 
-      <div style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 10, padding: 20, height: "fit-content", position: "sticky", top: 32 }}>
-        <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 12, color: "#111" }}>SEO Skoru</h2>
+      <div className="adm-card" style={{ height: "fit-content", position: "sticky", top: 32 }}>
+        <div className="adm-card-h"><div><b style={{ fontSize: 15 }}>SEO Skoru</b></div></div>
+        <div className="adm-card-b">
         {seo && (
           <>
-            <div style={{ fontSize: 36, fontWeight: 800, color: seo.score >= 70 ? "#16a34a" : seo.score >= 50 ? "#d97706" : "#dc2626", marginBottom: 16 }}>
+            <div style={{ fontFamily: "var(--display)", fontSize: 36, fontWeight: 700, color: seo.score >= 70 ? "var(--up)" : seo.score >= 50 ? "#d97706" : "var(--dn)", marginBottom: 16 }}>
               {seo.score}/100
             </div>
             {seo.issues.length > 0 && (
               <div style={{ marginBottom: 12 }}>
-                <p style={{ fontSize: 10, color: "#dc2626", marginBottom: 6, fontWeight: 600 }}>SORUNLAR</p>
-                {seo.issues.map((i, idx) => <p key={idx} style={{ fontSize: 12, color: "#dc2626", marginBottom: 4 }}>• {i}</p>)}
+                <p className="adm-label" style={{ color: "var(--dn)", marginBottom: 6 }}>SORUNLAR</p>
+                {seo.issues.map((i, idx) => <p key={idx} style={{ fontSize: 12, color: "var(--dn)", marginBottom: 4 }}>• {i}</p>)}
               </div>
             )}
             {seo.passed.length > 0 && (
               <div>
-                <p style={{ fontSize: 10, color: "#16a34a", marginBottom: 6, fontWeight: 600 }}>GEÇEN</p>
-                {seo.passed.map((p, idx) => <p key={idx} style={{ fontSize: 12, color: "#16a34a", marginBottom: 4 }}>✓ {p}</p>)}
+                <p className="adm-label" style={{ color: "var(--up)", marginBottom: 6 }}>GEÇEN</p>
+                {seo.passed.map((p, idx) => <p key={idx} style={{ fontSize: 12, color: "var(--up)", marginBottom: 4 }}>✓ {p}</p>)}
               </div>
             )}
           </>
         )}
+        </div>
       </div>
     </div>
   );
@@ -126,9 +126,8 @@ export default function EditArticle() {
 function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <label style={{ display: "block", marginBottom: 16 }}>
-      <span style={{ fontSize: 11, color: "#999", display: "block", marginBottom: 4 }}>{label}</span>
-      <input type="text" value={value} onChange={e => onChange(e.target.value)}
-        style={{ width: "100%", padding: "8px 12px", background: "#fff", border: "1px solid #ddd", borderRadius: 6, color: "#111", fontSize: 13 }} />
+      <span className="adm-label">{label}</span>
+      <input type="text" value={value} onChange={e => onChange(e.target.value)} className="adm-input" />
     </label>
   );
 }
@@ -138,20 +137,18 @@ function EditorTabs({ content, onChange }: { content: string; onChange: (v: stri
   return (
     <div>
       <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
-        <button type="button" onClick={() => setMode("visual")}
-          style={{ padding: "4px 10px", fontSize: 10, borderRadius: 4, border: "1px solid #ddd", background: mode === "visual" ? "#111" : "transparent", color: mode === "visual" ? "#fff" : "#888", cursor: "pointer" }}>
+        <button type="button" onClick={() => setMode("visual")} className={`adm-pill${mode === "visual" ? " on" : ""}`} style={{ fontSize: 10, padding: "4px 10px" }}>
           Görsel Editör
         </button>
-        <button type="button" onClick={() => setMode("html")}
-          style={{ padding: "4px 10px", fontSize: 10, borderRadius: 4, border: "1px solid #ddd", background: mode === "html" ? "#111" : "transparent", color: mode === "html" ? "#fff" : "#888", cursor: "pointer" }}>
+        <button type="button" onClick={() => setMode("html")} className={`adm-pill${mode === "html" ? " on" : ""}`} style={{ fontSize: 10, padding: "4px 10px" }}>
           HTML
         </button>
       </div>
       {mode === "visual" ? (
         <RichEditor content={content} onChange={onChange} />
       ) : (
-        <textarea value={content} onChange={e => onChange(e.target.value)}
-          style={{ width: "100%", minHeight: 400, padding: 12, background: "#fff", border: "1px solid #ddd", borderRadius: 6, color: "#111", fontSize: 13, fontFamily: "monospace", resize: "vertical" }} />
+        <textarea value={content} onChange={e => onChange(e.target.value)} className="adm-textarea"
+          style={{ minHeight: 400, fontFamily: "var(--mono)", fontSize: 13 }} />
       )}
     </div>
   );

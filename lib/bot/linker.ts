@@ -35,7 +35,7 @@ export async function autoLink(
   });
 
   // Also inject contextual internal links by matching keywords in content
-  let internalLinksAdded = countInternalLinks(html);
+  const internalLinksAdded = countInternalLinks(html);
   if (internalLinksAdded < 2 && pool.length > 0) {
     html = injectKeywordLinks(html, pool, currentSlug, 3 - internalLinksAdded);
   }

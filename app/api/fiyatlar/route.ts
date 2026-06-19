@@ -8,17 +8,33 @@ async function getTCMB(){
     const p=new XMLParser({ignoreAttributes:false,attributeNamePrefix:"@_"});
     const data=p.parse(xml);
     const kurlar=data?.Tarih_Date?.Currency||[];
-    const find=(code:string)=>{const k=kurlar.find((c:any)=>c["@_CurrencyCode"]===code);return k?{alis:parseFloat(k.ForexBuying),satis:parseFloat(k.ForexSelling)}:null;};
+    const find=(code:string)=>{const k=kurlar.find((c:Record<string,string>)=>c["@_CurrencyCode"]===code);return k?{alis:parseFloat(k.ForexBuying),satis:parseFloat(k.ForexSelling)}:null;};
     return{usd:find("USD"),eur:find("EUR"),gbp:find("GBP")};
   }catch{return{};}
 }
 
+async function getYahooHistory(symbol: string) {
+  try {
+    const res = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=7d`, { next: { revalidate: 300 } });
+    const data = await res.json();
+    const meta = data?.chart?.result?.[0]?.meta;
+    const price = meta?.regularMarketPrice;
+    const prev = meta?.chartPreviousClose;
+    const pct = prev ? ((price - prev) / prev) * 100 : 0;
+    const sparkline = data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter((v: number | null): v is number => v != null) || [];
+    return { pct, sparkline };
+  } catch {
+    return { pct: 0, sparkline: [] };
+  }
+}
+
 async function getBist(){
   try{
-    const res=await fetch("https://query1.finance.yahoo.com/v8/finance/chart/XU100.IS?interval=1d&range=2d",{next:{revalidate:120}});
+    const res=await fetch("https://query1.finance.yahoo.com/v8/finance/chart/XU100.IS?interval=1d&range=7d",{next:{revalidate:120}});
     const data=await res.json();const meta=data?.chart?.result?.[0]?.meta;if(!meta)return null;
     const price=meta.regularMarketPrice,prev=meta.chartPreviousClose;
-    return{price,pct:prev?((price-prev)/prev)*100:0};
+    const sparkline = data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter((v: number | null): v is number => v != null) || [];
+    return{price,pct:prev?((price-prev)/prev)*100:0,sparkline};
   }catch{return null;}
 }
 
@@ -31,26 +47,30 @@ async function getBtc(){
 }
 
 async function getGold(usdTry: number | null){
-  // Try Yahoo Finance first
   try{
-    const res=await fetch("https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=2d",{next:{revalidate:300}});
+    const res=await fetch("https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=7d",{next:{revalidate:300}});
     const data=await res.json();const meta=data?.chart?.result?.[0]?.meta;if(!meta)throw new Error("no data");
     const priceUsd=meta.regularMarketPrice;
     const prevUsd=meta.chartPreviousClose;
+    const sparklineUsd = data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter((v: number | null): v is number => v != null) || [];
     if(usdTry && priceUsd){
       const gramTry=(priceUsd/31.1035)*usdTry;
       const prevGramTry=prevUsd?(prevUsd/31.1035)*usdTry:null;
-      return{price:Math.round(gramTry*100)/100, pct:prevGramTry?((gramTry-prevGramTry)/prevGramTry)*100:((priceUsd-prevUsd)/prevUsd)*100};
+      const sparkline = sparklineUsd.map((p: number) => (p / 31.1035) * usdTry);
+      return{
+        price:Math.round(gramTry*100)/100,
+        pct:prevGramTry?((gramTry-prevGramTry)/prevGramTry)*100:((priceUsd-prevUsd)/prevUsd)*100,
+        sparkline
+      };
     }
     return null;
   }catch{
-    // Fallback: CoinGecko XAUT (gold-backed token ≈ 1 oz gold)
     try{
       const res=await fetch("https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd,try&include_24hr_change=true",{next:{revalidate:120}});
       const data=await res.json();const xaut=data?.["tether-gold"];if(!xaut)return null;
       const tryRate=usdTry||xaut.try/xaut.usd;
       const gramTry=(xaut.usd/31.1035)*tryRate;
-      return{price:Math.round(gramTry*100)/100,pct:xaut.try_24h_change||xaut.usd_24h_change||0};
+      return{price:Math.round(gramTry*100)/100,pct:xaut.try_24h_change||xaut.usd_24h_change||0,sparkline:[]};
     }catch{return null;}
   }
 }
@@ -58,6 +78,21 @@ async function getGold(usdTry: number | null){
 export async function GET(){
   const tcmb=await getTCMB();
   const usdTry=tcmb?.usd?.satis||null;
-  const [bist,btc,gold]=await Promise.all([getBist(),getBtc(),getGold(usdTry)]);
-  return NextResponse.json({tcmb,bist,btc,gold},{headers:{"Cache-Control":"s-maxage=60,stale-while-revalidate=30"}});
+  const [bist,btc,gold,usdData,eurData]=await Promise.all([
+    getBist(),
+    getBtc(),
+    getGold(usdTry),
+    getYahooHistory("USDTRY=X"),
+    getYahooHistory("EURTRY=X")
+  ]);
+  return NextResponse.json({
+    tcmb,
+    bist,
+    btc,
+    gold,
+    usdHistory: usdData.sparkline,
+    usdPct: usdData.pct,
+    eurHistory: eurData.sparkline,
+    eurPct: eurData.pct
+  },{headers:{"Cache-Control":"s-maxage=60,stale-while-revalidate=30"}});
 }
