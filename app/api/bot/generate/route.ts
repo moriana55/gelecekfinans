@@ -7,7 +7,7 @@ import { analyzeSeo } from "@/lib/seo";
 import { isDuplicate } from "@/lib/duplicate";
 import { getTopics } from "@/lib/bot/topics";
 import { writeArticle } from "@/lib/bot/writer";
-import { fetchUnsplashImage } from "@/lib/bot/images";
+import { getArticleImage } from "@/lib/bot/images";
 import { autoLink } from "@/lib/bot/linker";
 
 export const maxDuration = 120;
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
           keyword: article.keyword || null,
           category: article.category,
           content: article.content,
-          imageUrl: await fetchUnsplashImage(article.keyword || "", article.category) || null,
+          imageUrl: await getArticleImage({ title: article.title, keyword: article.keyword, category: article.category }) || null,
           source: article.source,
           articleSource: "BOT",
           status: seo.score >= 50 ? "PUBLISHED" : "DRAFT",

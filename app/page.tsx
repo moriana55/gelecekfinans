@@ -27,7 +27,7 @@ export default async function HomePage() {
     .sort((x, y) => y.v - x.v)
     .slice(0, 5)
     .map(x => x.a);
-  const recent  = all.slice(11, 23);
+  const recent  = all.slice(6, 18);   // şerit (3-6) sonrası kesintisiz — orphan makale kalmaz
   const trending = Array.from(
     new Set(all.flatMap(a => (a.keyword ? a.keyword.split(/[,;]/) : [])).map(k => k.trim()).filter(Boolean))
   ).slice(0, 10);
@@ -105,6 +105,25 @@ export default async function HomePage() {
               ))}
             </div>
           )}
+          {/* Lider altı üçlü şerit — sol kolonda, haberlerin hemen altında.
+              Sol kolonu doldurur, sağ sidebar ile boy dengeler (üstteki boşluk gider). */}
+          {strip.length > 0 && (
+            <div
+              className="home-strip3"
+              style={{
+                marginTop: 18,
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: 1,
+                overflow: "hidden",
+                borderRadius: 12,
+                border: "1px solid var(--border)",
+                background: "var(--border)",
+              }}
+            >
+              {strip.map(a=><StripCard key={a.filename} article={a}/>)}
+            </div>
+          )}
         </div>
 
         <aside className="home-rail" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -155,25 +174,6 @@ export default async function HomePage() {
           <AdSlot position="sidebar" />
         </aside>
       </div>
-
-      {/* Lider altı üçlü şerit */}
-      {strip.length > 0 && (
-        <div
-          className="home-strip3"
-          style={{
-            marginTop: 28,
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 1,
-            overflow: "hidden",
-            borderRadius: 12,
-            border: "1px solid var(--border)",
-            background: "var(--border)",
-          }}
-        >
-          {strip.map(a=><StripCard key={a.filename} article={a}/>)}
-        </div>
-      )}
 
       {/* Lider bloğu sonrası tek, etiketli reklam (CLS-güvenli) */}
       <AdSlot position="headerBanner" />
