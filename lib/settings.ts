@@ -3,6 +3,9 @@ import { prisma } from "./db";
 export interface Settings {
   ga4Id?: string;
   adsenseId?: string;
+  // Google Search Console doğrulama meta etiketi (google-site-verification içeriği).
+  // Admin panelden girilir; layout metadata'sı buradan okur.
+  searchConsoleVerification?: string;
   adSlots?: {
     headerBanner?: boolean;
     inArticle?: boolean;
@@ -15,6 +18,9 @@ export interface Settings {
 const DEFAULT_SETTINGS: Settings = {
   ga4Id: "",
   adsenseId: "",
+  // Mevcut (commit f204b4f ile eklenen) doğrulama kodu default olarak korunur;
+  // admin panelden değiştirilince DB'deki değer bunu ezer.
+  searchConsoleVerification: "4aVBJpoKMchlL_iSElublDYdFr8BMugU2qMg3zU32D8",
   adSlots: { headerBanner: false, inArticle: false, sidebar: false, afterArticle: false },
   breakingNewsEnabled: true,
 };

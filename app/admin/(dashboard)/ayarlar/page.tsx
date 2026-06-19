@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
-    ga4Id: "", adsenseId: "",
+    ga4Id: "", adsenseId: "", searchConsoleVerification: "",
     adSlots: { headerBanner: false, inArticle: false, sidebar: false, afterArticle: false },
   });
   const [saving, setSaving] = useState(false);
@@ -32,6 +32,18 @@ export default function SettingsPage() {
       <Section title="Google Analytics">
         <Field label="GA4 Measurement ID" placeholder="G-XXXXXXXXXX" value={settings.ga4Id}
           onChange={v => setSettings(s => ({ ...s, ga4Id: v }))} />
+      </Section>
+
+      <Section title="Google Search Console">
+        <Field label="Doğrulama Kodu (google-site-verification içeriği)"
+          placeholder="örn. 4aVBJpoKMchlL_iSElublDYdFr8BMugU2qMg3zU32D8"
+          value={settings.searchConsoleVerification}
+          onChange={v => setSettings(s => ({ ...s, searchConsoleVerification: v }))} />
+        <p className="adm-label" style={{ margin: "8px 0 0", lineHeight: 1.5 }}>
+          Search Console&apos;da &quot;HTML etiketi&quot; doğrulama yöntemini seçin;
+          <code>&lt;meta name=&quot;google-site-verification&quot; content=&quot;...&quot;&gt;</code> içindeki
+          <b> content </b> değerini buraya yapıştırın. Boş bırakırsanız meta etiketi eklenmez.
+        </p>
       </Section>
 
       <Section title="Google AdSense">

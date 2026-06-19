@@ -9,6 +9,7 @@ import BreakingNews from "@/components/BreakingNews";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import PageTracker from "@/components/PageTracker";
 import { Analytics } from "@vercel/analytics/react";
+import { getSettings } from "@/lib/settings";
 
 const BASE = "https://gelecekfinans.com";
 
@@ -35,31 +36,40 @@ const jetbrains = IBM_Plex_Mono({
   weight: ["400", "500", "600", "700"],
 });
 
-export const metadata: Metadata = {
-  title: { default: "GelecekFinans — Finans & Ekonomi Haberleri", template: "%s | GelecekFinans" },
-  description: "Borsa, döviz, kripto para, altın ve ekonomi alanında güncel haberler ve analizler.",
-  // İkonlar dosya tabanlı convention ile sunulur: app/icon.svg (favicon) ve
-  // app/apple-icon.tsx (apple touch). Next bunları otomatik olarak <head>'e
-  // ekler; bu yüzden burada açık `icons` tanımı yok (icon.svg öncelikli).
-  robots: { index: true, follow: true },
-  verification: { google: "4aVBJpoKMchlL_iSElublDYdFr8BMugU2qMg3zU32D8" },
-  metadataBase: new URL(BASE),
-  alternates: { types: { "application/rss+xml": "/feed.xml" } },
-  other: { "theme-color": "#ffffff", "apple-mobile-web-app-capable": "yes" },
-  openGraph: {
-    type: "website",
-    locale: "tr_TR",
-    siteName: "GelecekFinans",
-    title: "GelecekFinans — Finans & Ekonomi Haberleri",
+// Metadata DB tabanlı: Google Search Console doğrulama kodu admin panelden
+// (Site Ayarları → Google Search Console) yönetilir. Bu yüzden static `metadata`
+// yerine async `generateMetadata` kullanıyoruz.
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  const gscCode = settings.searchConsoleVerification?.trim();
+
+  return {
+    title: { default: "GelecekFinans — Finans & Ekonomi Haberleri", template: "%s | GelecekFinans" },
     description: "Borsa, döviz, kripto para, altın ve ekonomi alanında güncel haberler ve analizler.",
-    url: BASE,
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "GelecekFinans",
-    description: "Borsa, döviz, kripto para, altın ve ekonomi alanında güncel haberler.",
-  },
-};
+    // İkonlar dosya tabanlı convention ile sunulur: app/icon.svg (favicon) ve
+    // app/apple-icon.tsx (apple touch). Next bunları otomatik olarak <head>'e
+    // ekler; bu yüzden burada açık `icons` tanımı yok (icon.svg öncelikli).
+    robots: { index: true, follow: true },
+    // Search Console doğrulaması: admin'de değer varsa onu, yoksa hiç ekleme.
+    ...(gscCode ? { verification: { google: gscCode } } : {}),
+    metadataBase: new URL(BASE),
+    alternates: { types: { "application/rss+xml": "/feed.xml" } },
+    other: { "theme-color": "#ffffff", "apple-mobile-web-app-capable": "yes" },
+    openGraph: {
+      type: "website",
+      locale: "tr_TR",
+      siteName: "GelecekFinans",
+      title: "GelecekFinans — Finans & Ekonomi Haberleri",
+      description: "Borsa, döviz, kripto para, altın ve ekonomi alanında güncel haberler ve analizler.",
+      url: BASE,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "GelecekFinans",
+      description: "Borsa, döviz, kripto para, altın ve ekonomi alanında güncel haberler.",
+    },
+  };
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -1,12 +1,23 @@
+// Doğrulanmış çalışan Türkçe finans feed'leri + kategori bazlı Google News RSS.
+// (Eski ölü feed'ler çıkarıldı: paraanaliz/cointurk/ekonomim/trthaber-eski-url → 404/DNS.)
+// Google News RSS sorguları UA gerektirmez, her kategori için bol taze konu döndürür;
+// böylece "altın" gibi az haberli kategorilerde bile "konu bulunamadı" olmaz.
 export const RSS_FEEDS = [
+  // Genel çalışan kaynaklar
   "https://www.bloomberght.com/rss",
   "https://www.dunya.com/rss/gundem.xml",
-  "https://www.paraanaliz.com/feed/",
   "https://koinmedya.com/feed/",
   "https://www.btchaber.com/feed/",
-  "https://cointurk.com/feed/",
-  "https://www.ekonomim.com/rss.xml",
-  "https://www.trthaber.com/xml/rss/ekonomi.xml",
+  "https://www.aa.com.tr/tr/rss/default?cat=ekonomi",
+  "https://www.haberturk.com/rss/ekonomi.xml",
+  "https://www.ntv.com.tr/ekonomi.rss",
+  "https://www.sozcu.com.tr/feeds-rss-category-ekonomi",
+  // Kategori bazlı Google News RSS (TR) — garanti taze konu
+  "https://news.google.com/rss/search?q=alt%C4%B1n+gram+alt%C4%B1n+ons+OR+%C3%A7eyrek+alt%C4%B1n&hl=tr&gl=TR&ceid=TR:tr",
+  "https://news.google.com/rss/search?q=bitcoin+OR+ethereum+OR+kripto+para&hl=tr&gl=TR&ceid=TR:tr",
+  "https://news.google.com/rss/search?q=borsa+istanbul+OR+bist+100+OR+hisse&hl=tr&gl=TR&ceid=TR:tr",
+  "https://news.google.com/rss/search?q=dolar+OR+euro+OR+d%C3%B6viz+kuru&hl=tr&gl=TR&ceid=TR:tr",
+  "https://news.google.com/rss/search?q=enflasyon+OR+faiz+OR+merkez+bankas%C4%B1+OR+ekonomi&hl=tr&gl=TR&ceid=TR:tr",
 ];
 
 export const CATEGORIES: Record<string, string[]> = {

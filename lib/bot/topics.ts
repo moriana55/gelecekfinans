@@ -9,27 +9,50 @@ export interface Topic {
   imageUrl?: string;
 }
 
-const parser = new Parser({ timeout: 8000 });
+const parser = new Parser({ timeout: 10000 });
+
+// Bazı Türk siteleri User-Agent'sız isteği bloklar; gerçek tarayıcı UA ile çekiyoruz.
+const UA =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 
 function extractImageFromContent(html: string): string | undefined {
   const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
   return match?.[1];
 }
 
+// Feed'i önce UA'lı fetch ile çek, parseString'e ver; olmazsa parser.parseURL fallback.
+async function fetchFeed(url: string) {
+  try {
+    const controller = new AbortController();
+    const t = setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(url, {
+      headers: { "User-Agent": UA, Accept: "application/rss+xml, application/xml, text/xml, */*" },
+      signal: controller.signal,
+    });
+    clearTimeout(t);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const xml = await res.text();
+    return await parser.parseString(xml);
+  } catch {
+    return await parser.parseURL(url);
+  }
+}
+
+interface RawTopic extends Topic {
+  pubDate: number;
+}
+
 export async function getTopics(limit = 20, category?: string): Promise<Topic[]> {
-  const cutoff = Date.now() - 24 * 60 * 60 * 1000;
-  const topics: Topic[] = [];
+  const all: RawTopic[] = [];
 
   const results = await Promise.allSettled(
     RSS_FEEDS.map(async (url) => {
-      const feed = await parser.parseURL(url);
-      for (const entry of (feed.items || []).slice(0, 15)) {
+      const feed = await fetchFeed(url);
+      for (const entry of (feed.items || []).slice(0, 20)) {
         const title = (entry.title || "").trim();
         if (!title) continue;
 
         const pubDate = entry.pubDate ? new Date(entry.pubDate).getTime() : 0;
-        if (pubDate && pubDate < cutoff) continue;
-
         const summary = (entry.contentSnippet || entry.content || "").slice(0, 300);
 
         const e = entry as Record<string, unknown>;
@@ -51,32 +74,38 @@ export async function getTopics(limit = 20, category?: string): Promise<Topic[]>
           }
         }
 
-        topics.push({
-          title,
-          summary,
-          category: cat,
-          source: feed.title || url,
-          imageUrl,
-        });
+        all.push({ title, summary, category: cat, source: feed.title || url, imageUrl, pubDate });
       }
     })
   );
 
   const errors = results.filter((r) => r.status === "rejected").length;
-  if (errors > 0) console.log(`[topics] ${errors} RSS feed hata verdi`);
+  if (errors > 0) console.log(`[topics] ${errors}/${RSS_FEEDS.length} RSS feed hata verdi`);
 
-  const filtered = category && category !== "otomatik"
-    ? topics.filter((t) => t.category === category)
-    : topics;
+  // Kademeli zaman penceresi: 48h yetmezse 96h, en kötü ihtimalde tümü.
+  // Böylece "altın" gibi az haberli kategorilerde "konu bulunamadı" olmaz.
+  const windows = [48, 96, 0]; // saat (0 = sınırsız)
+  const now = Date.now();
+  let unique: Topic[] = [];
 
-  const seen = new Set<string>();
-  const unique: Topic[] = [];
-  for (const t of filtered) {
-    const key = t.title.slice(0, 40).toLowerCase();
-    if (!seen.has(key)) {
-      seen.add(key);
-      unique.push(t);
+  for (const hours of windows) {
+    const cutoff = hours > 0 ? now - hours * 60 * 60 * 1000 : 0;
+    const inWindow = all.filter((t) => !t.pubDate || t.pubDate >= cutoff);
+    const filtered =
+      category && category !== "otomatik"
+        ? inWindow.filter((t) => t.category === category)
+        : inWindow;
+
+    const seen = new Set<string>();
+    unique = [];
+    for (const t of filtered) {
+      const key = t.title.slice(0, 40).toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push({ title: t.title, summary: t.summary, category: t.category, source: t.source, imageUrl: t.imageUrl });
+      }
     }
+    if (unique.length >= 5) break; // yeterli konu bulundu, pencereyi genişletme
   }
 
   return unique.slice(0, limit);
