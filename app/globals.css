@@ -1722,11 +1722,15 @@ input:focus-visible,
   .home-split { grid-template-columns: 1fr !important; }
   .home-rail { position: static !important; }
   .resp-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+  /* Sol kolon artık tam genişlik → "Son Haberler" 3 kolona açılabilir. */
+  .home-recent-grid { grid-template-columns: repeat(3, 1fr) !important; }
 }
 @media (max-width: 640px) {
   .home-lead2 { grid-template-columns: 1fr !important; }
   .home-strip3 { grid-template-columns: 1fr !important; }
   .resp-grid-4 { grid-template-columns: 1fr !important; }
+  /* Dar sol kolonda "Son Haberler" — mobilde tek kolon. */
+  .home-recent-grid { grid-template-columns: 1fr !important; }
 }
 
 /* ── RESPONSIVE ── */

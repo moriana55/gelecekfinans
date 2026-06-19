@@ -33,7 +33,7 @@ function digestHtml(
       (a) => `
       <tr>
         <td style="padding:16px 0;border-bottom:1px solid #f0f0f0">
-          <span style="font-size:10px;color:#c73030;text-transform:uppercase;letter-spacing:0.05em;font-weight:600">${a.category.toUpperCase()}</span>
+          <span style="font-size:10px;color:#0f3d6b;text-transform:uppercase;letter-spacing:0.05em;font-weight:600">${a.category.toUpperCase()}</span>
           <a href="${BASE}/${a.slug}" style="display:block;font-size:16px;font-weight:700;color:#111;text-decoration:none;margin-top:4px;line-height:1.4">${a.title}</a>
           <p style="font-size:13px;color:#666;margin-top:6px;line-height:1.5">${a.meta}</p>
         </td>
@@ -55,8 +55,8 @@ function digestHtml(
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:20px 0">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;max-width:100%">
-        <tr><td style="background:#111;padding:24px 32px;text-align:center">
-          <span style="font-size:22px;font-weight:800;color:#fff">gelecek</span><span style="font-size:22px;font-weight:800;color:#c73030">finans</span>
+        <tr><td style="background:#0f3d6b;padding:24px 32px;text-align:center">
+          <span style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.02em">Gelecek</span><span style="font-size:22px;font-weight:800;color:#7fb0e3;letter-spacing:-0.02em">Finans</span>
         </td></tr>
         <tr><td style="padding:28px 32px">
           <p style="font-size:13px;color:#888;margin:0 0 4px">${today}</p>
@@ -65,12 +65,12 @@ function digestHtml(
             ${articleHtml}
           </table>
           <div style="text-align:center;margin-top:28px">
-            <a href="${BASE}" style="display:inline-block;padding:12px 28px;background:#c73030;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:13px">Tüm Haberleri Oku</a>
+            <a href="${BASE}" style="display:inline-block;padding:12px 28px;background:#0f3d6b;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:13px">Tüm Haberleri Oku</a>
           </div>
         </td></tr>
         <tr><td style="padding:20px 32px;background:#fafafa;border-top:1px solid #e5e5e5;text-align:center">
           <p style="font-size:11px;color:#999;margin:0">Bu e-postayı ${BASE} üzerinden abone olduğunuz için alıyorsunuz.</p>
-          <a href="${BASE}/api/newsletter/unsubscribe?email={{email}}" style="font-size:11px;color:#c73030;text-decoration:underline">Abonelikten çık</a>
+          <a href="${BASE}/api/newsletter/unsubscribe?email={{email}}" style="font-size:11px;color:#0f3d6b;text-decoration:underline">Abonelikten çık</a>
         </td></tr>
       </table>
     </td></tr>
@@ -203,14 +203,14 @@ export async function sendOptInConfirmation(email: string, token: string): Promi
 <body style="font-family:system-ui;background:#f5f5f5;padding:24px">
   <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
     <table width="520" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden">
-      <tr><td style="background:#111;padding:20px 28px;text-align:center">
-        <span style="font-size:20px;font-weight:800;color:#fff">gelecek</span><span style="font-size:20px;font-weight:800;color:#c73030">finans</span>
+      <tr><td style="background:#0f3d6b;padding:20px 28px;text-align:center">
+        <span style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.02em">Gelecek</span><span style="font-size:20px;font-weight:800;color:#7fb0e3;letter-spacing:-0.02em">Finans</span>
       </td></tr>
       <tr><td style="padding:28px">
         <h1 style="font-size:18px;color:#111">Aboneliğinizi onaylayın</h1>
         <p style="font-size:14px;color:#555;line-height:1.6">GelecekFinans bültenine kaydolduğunuz için teşekkürler. Almaya başlamak için aşağıdaki butona tıklayın.</p>
         <div style="text-align:center;margin:24px 0">
-          <a href="${confirmUrl}" style="display:inline-block;padding:12px 28px;background:#c73030;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px">Aboneliği Onayla</a>
+          <a href="${confirmUrl}" style="display:inline-block;padding:12px 28px;background:#0f3d6b;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px">Aboneliği Onayla</a>
         </div>
         <p style="font-size:11px;color:#999">Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz.</p>
       </td></tr>

@@ -250,20 +250,28 @@ function quickChartUrl(points: number[], label: string, unit: string): string {
  * AI EDİTORYAL GÖRSEL (gpt-image-1)
  * ------------------------------------------------------------------------ */
 
+// Kategori ipuçları artık GERÇEK SAHNE odaklı (foto-gazetecilik). Klişe
+// coin/sembol/3D illüstrasyon yerine haberde gerçekten görülebilecek mekânlar.
 const CATEGORY_VISUAL_HINT: Record<string, string> = {
   borsa:
-    "a modern stock exchange trading floor and abstract market data dashboards, candlestick and line motifs",
+    "a real stock exchange trading floor with traders at desks and large electronic display boards in the background",
   ekonomi:
-    "macroeconomic themes: a central bank building, abstract growth/inflation flow lines, currency and policy motifs",
-  kripto: "blockchain network nodes, abstract digital asset motifs, glowing data flows",
-  doviz: "global currency flows, exchange motifs, world finance abstract",
-  altin: "gold bullion and precious-metal market motifs, refined and premium",
+    "a real-world economic scene: a city financial district, a busy marketplace or bazaar, or a central bank headquarters building exterior",
+  kripto:
+    "a realistic technology scene: a data center server room or rows of computer hardware, professional and grounded (no glowing sci-fi clichés)",
+  doviz:
+    "a realistic currency exchange office or a bank branch interior with an exchange-rate board, everyday documentary feel",
+  altin:
+    "a realistic scene of gold bars in a vault or a jeweler's workshop handling precious metal, natural lighting",
 };
 
 /**
- * gpt-image-1 ile makale başlığına özgü editoryal görsel üretir.
+ * gpt-image-1 ile makale başlığına özgü GERÇEKÇİ EDİTORYAL HABER FOTOĞRAFI
+ * üretir (foto-gazetecilik / Reuters-AP-Bloomberg estetiği). Klişe finans
+ * clipart'ı (coin, $€₺ sembolü, 3D dashboard) değil; haberin gerçek konusunu
+ * betimleyen, magazin kalitesinde fotoğraf.
  * 1536x1024 (yatay), 'medium' kalite (~$0.04-0.07). base64 (data URL) döner.
- * Görselde METİN YASAK (AI bozuk yazı üretir). Env yok/hata → null.
+ * Görselde METİN/SEMBOL/LOGO YASAK (AI bozuk yazı üretir). Env yok/hata → null.
  */
 async function generateAiImage(article: ArticleImageInput): Promise<string | null> {
   if (!process.env.OPENAI_API_KEY) return null;
@@ -272,18 +280,23 @@ async function generateAiImage(article: ArticleImageInput): Promise<string | nul
     const hint = CATEGORY_VISUAL_HINT[article.category] || CATEGORY_VISUAL_HINT.ekonomi;
 
     const prompt = [
-      "Professional editorial illustration for a Turkish financial news article.",
-      `Article topic: "${article.title}".`,
-      `Visual theme: ${hint}.`,
-      "Style: clean, corporate, sophisticated. Deep navy / dark slate background",
-      "with subtle teal and muted gold accents. Photo-realistic or polished",
-      "vector/3D-render look, soft depth of field, premium financial press aesthetic.",
-      "Cohesive, on-topic, magazine-grade.",
-      "STRICT: absolutely NO text, NO letters, NO numbers, NO words, NO logos,",
-      "NO watermarks, NO charts with axis labels anywhere in the image.",
-      "Avoid generic stock-photo cliches, avoid cream+gold luxury kitsch,",
-      "avoid people looking at the camera, avoid distorted hands.",
-      "Wide landscape composition suitable as an article header.",
+      "A realistic editorial news photograph for a Turkish financial news article,",
+      "in the documentary photojournalism style of Reuters, AP or Bloomberg.",
+      `The photo should depict the actual subject of this news story: "${article.title}".`,
+      `If a concrete scene is not obvious from the headline, default to: ${hint}.`,
+      "Style: authentic press photography — natural lighting, cinematic, shallow",
+      "depth of field, candid and grounded, true-to-life colors with a slightly",
+      "muted, restrained, corporate tone. Magazine / newswire quality.",
+      "It must read as a real photograph that genuinely fits the news topic,",
+      "NOT a generic finance stock image.",
+      "STRICT — do NOT include any of the following anywhere in the image:",
+      "no text, no letters, no numbers, no words, no logos, no watermarks;",
+      "no currency symbols ($ € ₺) and no money-symbol clipart;",
+      "no 3D renders, no vector illustrations, no glossy fintech graphics;",
+      "no floating coins, no abstract dashboards, no arrows or chart cliches;",
+      "no cream-and-gold luxury kitsch; no person looking at the camera;",
+      "no distorted hands or faces.",
+      "Wide landscape composition suitable as an article header photo.",
     ].join(" ");
 
     const result = await openai.images.generate({

@@ -31,10 +31,6 @@ export default async function HomePage() {
   const trending = Array.from(
     new Set(all.flatMap(a => (a.keyword ? a.keyword.split(/[,;]/) : [])).map(k => k.trim()).filter(Boolean))
   ).slice(0, 10);
-  const byCat   = Object.keys(CATS).map(cat=>({
-    cat, cfg: CATS[cat],
-    items: all.filter(a=>a.category===cat).slice(0,4),
-  })).filter(g=>g.items.length>=2);
 
   return (
     <div className="container page-home" style={{ paddingTop: 28 }}>
@@ -124,6 +120,24 @@ export default async function HomePage() {
               {strip.map(a=><StripCard key={a.filename} article={a}/>)}
             </div>
           )}
+
+          {/* "Son Haberler" — sol kolonun içinde, şeridin altında.
+              Sağ sidebar uzun (MarketMini + En Çok Okunan + MoversRail +
+              Gündemdekiler + AdSlot) olduğundan sol kolon kısa kalıp altında
+              dev boşluk bırakıyordu. Recent'i buraya alıp sol kolonu uzatınca
+              iki kolon boy dengeler, boşluk kapanır. Sol kolon dar (~930px)
+              olduğu için 2 kolonlu responsive grid (home-recent-grid). */}
+          {recent.length > 0 && (
+            <section className="section" style={{ marginTop: 32 }}>
+              <div className="sec-rule" style={{ display: "flex", alignItems: "center", gap: 16, padding: "8px 0 20px", marginBottom: 24 }}>
+                <span className="sec-rule-label" style={{ color: "var(--ink)" }}>Son Haberler</span>
+                <div className="sec-rule-line" />
+              </div>
+              <div className="home-recent-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "28px 20px" }}>
+                {recent.map(a=><MedCard key={a.filename} article={a}/>)}
+              </div>
+            </section>
+          )}
         </div>
 
         <aside className="home-rail" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -178,36 +192,9 @@ export default async function HomePage() {
       {/* Lider bloğu sonrası tek, etiketli reklam (CLS-güvenli) */}
       <AdSlot position="headerBanner" />
 
-      {recent.length>0&&(
-        <section className="section" style={{marginTop:40}}>
-          <div className="sec-rule" style={{display:"flex",alignItems:"center",gap:16,padding:"40px 0 20px",marginBottom:24}}>
-            <span className="sec-rule-label" style={{color:"var(--ink)"}}>Son Haberler</span>
-            <div className="sec-rule-line"/>
-          </div>
-          <div className="resp-grid-4" style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:"28px 20px"}}>
-            {recent.map(a=><MedCard key={a.filename} article={a}/>)}
-          </div>
-        </section>
-      )}
-
       <section className="section" style={{marginTop:40}}>
         <Newsletter />
       </section>
-
-      {byCat.map(({cat,cfg,items}, idx)=> (
-        <section key={cat} className="section" style={{marginTop:40}}>
-          <div className="sec-rule" style={{display:"flex",alignItems:"center",gap:16,padding:"40px 0 20px",marginBottom:24}}>
-            <span className="sec-rule-label" style={{color:cfg.c}}>{cfg.l}</span>
-            <div className="sec-rule-line"/>
-            <Link href={`/kategori/${cat}`} className="sec-rule-all">Tümünü gör →</Link>
-          </div>
-          <div className="resp-grid-4" style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:"28px 20px"}}>
-            {items.map(a=><MedCard key={a.filename} article={a}/>)}
-          </div>
-          {/* Akış ortasına yerleştirilmiş tek reklam (kategoriler arası) */}
-          {idx === 1 && <AdSlot position="inArticle" />}
-        </section>
-      ))}
 
     </div>
   );
