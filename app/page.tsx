@@ -127,7 +127,7 @@ export default async function HomePage() {
                 {trending.map(t=>(
                   <Link
                     key={t}
-                    href={`/?q=${encodeURIComponent(t)}`}
+                    href={`/arsiv?q=${encodeURIComponent(t)}`}
                     style={{
                       display: "inline-block",
                       borderRadius: 999,
