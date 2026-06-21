@@ -1,13 +1,35 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
+import { verifyUnsubToken, hasNewsletterSecret } from "@/lib/newsletter";
 
 export async function GET(req: NextRequest) {
-  const email = req.nextUrl.searchParams.get("email");
-  if (!email) return new Response("Geçersiz istek", { status: 400 });
+  // Tercih edilen yol: imzalı token (IDOR'a kapalı — yalnızca kendi adresini iptal edebilirsin).
+  const token = req.nextUrl.searchParams.get("token");
+  let email = verifyUnsubToken(token);
 
-  const decoded = decodeURIComponent(email);
+  // Geriye dönük fail-safe: yalnızca secret hiç yapılandırılmamışsa eski
+  // imzasız email parametresini kabul et. Secret varken bu yol kapalı,
+  // böylece eski/imzasız linkler enumeration için kullanılamaz.
+  if (!email && !hasNewsletterSecret()) {
+    const raw = req.nextUrl.searchParams.get("email");
+    if (raw) email = decodeURIComponent(raw);
+  }
+
+  if (!email) {
+    return new Response(
+      `<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8"><title>Geçersiz Bağlantı</title></head>
+<body style="font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f5f5f5">
+<div style="text-align:center;background:#fff;padding:40px;border-radius:12px;max-width:420px">
+<h1 style="font-size:20px;color:#dc2626">Bağlantı geçersiz</h1>
+<p style="color:#666;font-size:14px">Abonelikten çıkma bağlantısı geçersiz veya eksik.</p>
+<a href="https://gelecekfinans.com" style="color:#c73030;font-size:13px">Ana sayfaya dön</a>
+</div></body></html>`,
+      { status: 400, headers: { "Content-Type": "text/html; charset=utf-8" } }
+    );
+  }
+
   await prisma.subscriber.updateMany({
-    where: { email: decoded },
+    where: { email },
     data: { active: false },
   });
 

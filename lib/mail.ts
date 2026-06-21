@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { signUnsubToken } from "@/lib/newsletter";
 
 let _resend: Resend | null = null;
 function getResend(): Resend | null {
@@ -15,6 +16,18 @@ export function mailEnabled(): boolean {
 
 const FROM = process.env.MAIL_FROM || "GelecekFinans <bulten@gelecekfinans.com>";
 const BASE = process.env.SITE_URL || "https://gelecekfinans.com";
+
+/**
+ * Alıcıya özel abonelikten çıkma URL'i. Secret varsa imzalı token kullanır
+ * (IDOR'a karşı: başkasının adresini iptal etmek imkânsız). Secret yoksa
+ * fail-safe olarak eski imzasız email parametresine düşer.
+ */
+function unsubUrl(email: string): string {
+  const token = signUnsubToken(email);
+  return token
+    ? `${BASE}/api/newsletter/unsubscribe?token=${encodeURIComponent(token)}`
+    : `${BASE}/api/newsletter/unsubscribe?email=${encodeURIComponent(email)}`;
+}
 
 interface ArticleSummary {
   title: string;
@@ -70,7 +83,7 @@ function digestHtml(
         </td></tr>
         <tr><td style="padding:20px 32px;background:#fafafa;border-top:1px solid #e5e5e5;text-align:center">
           <p style="font-size:11px;color:#999;margin:0">Bu e-postayı ${BASE} üzerinden abone olduğunuz için alıyorsunuz.</p>
-          <a href="${BASE}/api/newsletter/unsubscribe?email={{email}}" style="font-size:11px;color:#0f3d6b;text-decoration:underline">Abonelikten çık</a>
+          <a href="{{unsub}}" style="font-size:11px;color:#0f3d6b;text-decoration:underline">Abonelikten çık</a>
         </td></tr>
       </table>
     </td></tr>
@@ -103,7 +116,7 @@ async function sendBatch(
             from: FROM,
             to: email,
             subject,
-            html: html.replace("{{email}}", encodeURIComponent(email)),
+            html: html.replace("{{unsub}}", unsubUrl(email)),
           })
           .then(() => {
             sent++;

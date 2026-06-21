@@ -89,3 +89,40 @@ export function verifyOptInToken(token: string | null | undefined): string | nul
   if (!email.includes("@")) return null;
   return email;
 }
+
+/**
+ * Abonelikten çıkma (unsubscribe) için imzalı token üretir. Onay token'ından
+ * ayrı bir "amaç" (purpose) öneki kullanır, böylece confirm token'ı unsubscribe
+ * için (veya tersi) yeniden kullanılamaz. CAN-SPAM gereği unsubscribe linki
+ * süresiz çalışmalı, bu yüzden son kullanma tarihi içermez.
+ * Anahtar yoksa null döner (çağıran taraf eski/no-op davranışına düşer).
+ */
+export function signUnsubToken(email: string): string | null {
+  if (!SECRET) return null;
+  const payload = b64url(Buffer.from(`unsub|${email}`, "utf8"));
+  const sig = b64url(createHmac("sha256", SECRET).update(payload).digest());
+  return `${payload}.${sig}`;
+}
+
+/** Unsubscribe token'ı doğrular; geçerliyse email döner, aksi halde null. */
+export function verifyUnsubToken(token: string | null | undefined): string | null {
+  if (!SECRET || !token) return null;
+  const parts = token.split(".");
+  if (parts.length !== 2) return null;
+  const [payload, sig] = parts;
+  const expected = b64url(createHmac("sha256", SECRET).update(payload).digest());
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+
+  let decoded: string;
+  try {
+    decoded = fromB64url(payload).toString("utf8");
+  } catch {
+    return null;
+  }
+  if (!decoded.startsWith("unsub|")) return null;
+  const email = decoded.slice("unsub|".length);
+  if (!email.includes("@")) return null;
+  return email;
+}
