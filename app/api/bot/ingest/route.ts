@@ -3,6 +3,9 @@ import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/slug";
 import { analyzeSeo } from "@/lib/seo";
 import { isDuplicate } from "@/lib/duplicate";
+import { getArticleImage } from "@/lib/bot/images";
+
+export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -49,9 +52,25 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
+      // Konuya özel benzersiz görsel: gpt-image-1 / gerçek grafik üret, Blob'a yükle.
+      // Python bot'un yolladığı image_path local dosya yolu olabilir (site'da
+      // kullanılamaz); yalnızca gerçek http URL ise onu yedek olarak kullanırız.
+      // Üretim hata verirse getArticleImage Unsplash'e düşer; o da yoksa null →
+      // makale yine de kaydedilir, akış kırılmaz.
+      const suppliedUrl =
+        typeof item.image_path === "string" && item.image_path.startsWith("http")
+          ? item.image_path
+          : null;
+      const imageUrl =
+        (await getArticleImage({
+          title: item.title,
+          keyword: item.keyword || null,
+          category: item.category,
+        })) || suppliedUrl;
+
       const seo = analyzeSeo({
         title: item.title, meta: item.meta, keyword: item.keyword || null,
-        content: item.content, slug, imageUrl: item.image_path || null,
+        content: item.content, slug, imageUrl,
       });
 
       const article = await prisma.article.create({
@@ -62,7 +81,7 @@ export async function POST(req: NextRequest) {
           keyword: item.keyword || null,
           category: item.category,
           content: item.content,
-          imageUrl: item.image_path || null,
+          imageUrl,
           source: item.source || null,
           articleSource: "BOT",
           status: "DRAFT", // Bot makaleleri DRAFT gelir; owner görsel ekleyip elle yayınlar
