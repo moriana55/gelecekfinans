@@ -26,9 +26,18 @@ const DEFAULT_SETTINGS: Settings = {
 };
 
 export async function getSettings(): Promise<Settings> {
-  const row = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
-  if (!row) return DEFAULT_SETTINGS;
-  return { ...DEFAULT_SETTINGS, ...(row.value as object) };
+  // Savunmacı: DB geçici olarak erişilemezse (ör. Neon uyku/kesinti, build anı)
+  // tüm sayfaların metadata'sı `generateMetadata` -> getSettings üzerinden buraya
+  // dayandığı için hatayı yutup DEFAULT_SETTINGS döndürürüz. Aksi halde tek bir
+  // bağlantı hatası tüm prerender/build'i çökertir.
+  try {
+    const row = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
+    if (!row) return DEFAULT_SETTINGS;
+    return { ...DEFAULT_SETTINGS, ...(row.value as object) };
+  } catch (err) {
+    console.error("[getSettings] sorgu başarısız, default ayarlar kullanılıyor:", err);
+    return DEFAULT_SETTINGS;
+  }
 }
 
 export async function updateSettings(data: Partial<Settings>): Promise<Settings> {
