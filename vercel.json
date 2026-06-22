@@ -3,6 +3,10 @@
     {
       "path": "/api/newsletter/cron",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/bot/cron",
+      "schedule": "0 7 * * *"
     }
   ]
 }
