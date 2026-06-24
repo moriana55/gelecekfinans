@@ -2,7 +2,9 @@ import { getAllArticles } from "@/lib/articles";
 import { FX_PAIRS, GOLD_TYPES, CRYPTO_COINS } from "@/lib/market";
 import type { MetadataRoute } from "next";
 
-export const dynamic = "force-dynamic";
+// Haber sitesi için saatlik tazeleme yeterli; her istekte tüm makaleleri
+// çekmek yerine sitemap saatte bir yeniden üretilir (revalidate = 3600 sn).
+export const revalidate = 3600;
 
 const BASE = "https://gelecekfinans.com";
 

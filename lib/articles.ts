@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "./db";
 import type { Article } from "./types";
 
@@ -29,7 +30,12 @@ function isMissingPremiumColumn(err: unknown): boolean {
   );
 }
 
-export async function getAllArticles(limit = 200): Promise<Article[]> {
+// React cache(): aynı render içinde aynı argümanlarla tekrarlı çağrılarda DB
+// sorgusunu tek sefere indirir (request-level dedupe). Davranış değişmez —
+// sonuçlar birebir aynı kalır, yalnızca tekrar eden sorgu önlenir.
+export const getAllArticles = cache(async function getAllArticles(
+  limit = 200
+): Promise<Article[]> {
   let rows: Array<{
     title: string;
     meta: string;
@@ -106,9 +112,13 @@ export async function getAllArticles(limit = 200): Promise<Article[]> {
     // Kolon yokken `premium` undefined gelir; default(false) semantiğiyle uyumlu.
     premium: r.premium ?? false,
   }));
-}
+});
 
-export async function getArticleBySlug(slug: string): Promise<Article | null> {
+// React cache(): generateMetadata + sayfa render'ı aynı slug'ı iki kez sorgular;
+// cache() ile tek istekte tek DB sorgusu yapılır. Sonuç birebir aynı.
+export const getArticleBySlug = cache(async function getArticleBySlug(
+  slug: string
+): Promise<Article | null> {
   const baseQuery = { where: { slug, status: "PUBLISHED" as const } };
   let r:
     | {
@@ -170,7 +180,7 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     // Kolon yokken `premium` undefined gelir; default(false) semantiğiyle uyumlu.
     premium: r.premium ?? false,
   };
-}
+});
 
 export async function getArticlesByCategory(cat: string): Promise<Article[]> {
   const all = await getAllArticles();
