@@ -1,8 +1,27 @@
+// İçerik Güvenlik Politikası (CSP) — derinlemesine savunma.
+// NOT: GA/AdSense init + JSON-LD + tema scripti inline olduğu için script-src'de
+// 'unsafe-inline' korunuyor (nonce pipeline'ı yok). Asıl kazanç: object-src 'none',
+// base-uri/form-action 'self', dış script kaynaklarının beyaz listeyle sınırlanması.
+const csp = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://va.vercel-scripts.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.vercel-insights.com https://*.vercel-scripts.com https://pagead2.googlesyndication.com",
+  "frame-src https://googleads.g.doubleclick.net https://*.googlesyndication.com https://*.google.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
 // Tüm yanıtlara uygulanan temel güvenlik header'ları.
 const securityHeaders = [
   // Tıklama hırsızlığına (clickjacking) karşı: sayfa hiçbir iframe içine gömülemez.
   { key: "X-Frame-Options", value: "DENY" },
-  { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+  { key: "Content-Security-Policy", value: csp },
   // MIME türü tahminini kapat.
   { key: "X-Content-Type-Options", value: "nosniff" },
   // Dış sitelere referer sızıntısını sınırla.
@@ -20,8 +39,12 @@ const nextConfig = {
   },
   images: {
     formats: ["image/avif", "image/webp"],
+    // Görsel optimize edici yalnızca bilinen kaynaklardan proxy yapsın
+    // (eski "**" tüm host'lara açıktı = SSRF/DoS/maliyet vektörü).
+    // Kaynaklar: bot üretimi → Vercel Blob, fallback → Unsplash.
     remotePatterns: [
-      { protocol: "https", hostname: "**" },
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
+      { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
   async headers() {

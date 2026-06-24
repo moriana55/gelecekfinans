@@ -11,6 +11,7 @@ import ShareButtons from "@/components/ShareButtons";
 import AdSlot from "@/components/AdSlot";
 import { injectInternalLinks } from "@/lib/internal-links";
 import { readingTime } from "@/lib/reading-time";
+import { sanitizeArticleHtml } from "@/lib/sanitize";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 300;
@@ -72,9 +73,12 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
   // diğerleri ~200 kelimelik teaser + üye girişi kapısı görür.
   const session = a.premium ? await getServerSession(authOptions) : null;
   const gated = !!a.premium && !session;
-  const bodyHtml = gated
-    ? buildTeaser(a.content, 200)
-    : injectInternalLinks(a.content, a.slug, allArticles);
+  // LLM/admin üretimi HTML basmadan önce sanitize edilir (stored-XSS koruması).
+  const bodyHtml = sanitizeArticleHtml(
+    gated
+      ? buildTeaser(a.content, 200)
+      : injectInternalLinks(a.content, a.slug, allArticles)
+  );
 
   return(
     <div className="article-container">
