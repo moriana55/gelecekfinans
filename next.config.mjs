@@ -4,11 +4,11 @@
 // base-uri/form-action 'self', dış script kaynaklarının beyaz listeyle sınırlanması.
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://va.vercel-scripts.com",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://www.googletagservices.com https://adservice.google.com https://va.vercel-scripts.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.vercel-insights.com https://*.vercel-scripts.com https://pagead2.googlesyndication.com",
+  "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.vercel-insights.com https://*.vercel-scripts.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.googlesyndication.com",
   "frame-src https://googleads.g.doubleclick.net https://*.googlesyndication.com https://*.google.com",
   "object-src 'none'",
   "base-uri 'self'",
@@ -45,6 +45,7 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "quickchart.io" },
     ],
   },
   async headers() {
