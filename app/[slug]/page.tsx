@@ -80,11 +80,33 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
       : injectInternalLinks(a.content, a.slug, allArticles)
   );
 
+  // AI "Özet & Cebine Etkisi" + SSS — yalnızca alanlar varsa ve içerik
+  // kilitli (premium teaser) DEĞİLSE göster (premium içeriği sızdırma).
+  const extras = a.aiExtras ?? null;
+  const showExtras = !!extras && !gated;
+  const faq = showExtras ? extras!.faq ?? [] : [];
+  // FAQPage JSON-LD — yalnızca sayfada GÖRÜNEN SSS'lerden üretilir (schema=görünür içerik).
+  const faqLd = faq.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faq.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      }
+    : null;
+
+  // JSON-LD XSS-güvenliği (Next 16 json-ld rehberi): `<` → < kaçışla.
+  const jsonLd = (obj: unknown) => JSON.stringify(obj).replace(/</g, "\\u003c");
+
   return(
     <div className="article-container">
       <ReadingProgress/>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(ld)}}/>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(breadcrumbLd)}}/>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(ld)}}/>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(breadcrumbLd)}}/>
+      {faqLd && <script type="application/ld+json" dangerouslySetInnerHTML={{__html:jsonLd(faqLd)}}/>}
 
       {/* Breadcrumb */}
       <nav className="breadcrumb">
@@ -118,8 +140,44 @@ export default async function ArticlePage({params}:{params:Promise<{slug:string}
         </figure>
       )}
 
+      {/* AI Özet & Cebine Etkisi kutusu (alanlar varsa) — metin React children
+          olarak basılır, otomatik kaçışlanır (XSS-güvenli). */}
+      {showExtras && ((extras!.summary?.length ?? 0) > 0 || !!extras!.impact) && (
+        <aside className="ai-brief" aria-label="Haber özeti ve etkisi">
+          {(extras!.summary?.length ?? 0) > 0 && (
+            <div className="ai-brief-block">
+              <span className="ai-brief-label">ÖZET</span>
+              <ul className="ai-brief-list">
+                {extras!.summary!.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
+            </div>
+          )}
+          {extras!.impact && (
+            <div className="ai-brief-block ai-brief-impact">
+              <span className="ai-brief-label">CEBİNE ETKİSİ</span>
+              <p>{extras!.impact}</p>
+            </div>
+          )}
+        </aside>
+      )}
+
       {/* Body with internal links (premium teaser if gated) */}
       <article className="article-prose" dangerouslySetInnerHTML={{__html:bodyHtml}}/>
+
+      {/* SSS — sayfada görünür (FAQPage JSON-LD ile birebir aynı içerik) */}
+      {faq.length > 0 && (
+        <section className="faq-section" aria-label="Sıkça sorulan sorular">
+          <h2 className="faq-title">Sıkça Sorulan Sorular</h2>
+          <div className="faq-list">
+            {faq.map((f, i) => (
+              <details key={i} className="faq-item">
+                <summary className="faq-q">{f.q}</summary>
+                <p className="faq-a">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Premium gate */}
       {gated && (

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Parser from "rss-parser";
 import { prisma } from "@/lib/db";
+import { asJson } from "@/lib/prisma-json";
 import { slugify } from "@/lib/slug";
 import { analyzeSeo } from "@/lib/seo";
 import { writeArticle } from "@/lib/bot/writer";
@@ -128,6 +129,7 @@ export async function POST(req: NextRequest) {
         keyword: article.keyword || null,
         category: article.category,
         content: article.content,
+        ...(article.aiExtras ? { aiExtras: asJson(article.aiExtras) } : {}),
         imageUrl,
         source: article.source,
         articleSource: "BOT",

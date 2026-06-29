@@ -2,6 +2,7 @@
 // Cron route'unun (app/api/bot/cron) mantığının aynısı, count parametreli.
 // Çalıştırma: npx tsx --env-file=.env scripts/fill-articles.ts [count]
 import { prisma } from "../lib/db";
+import { asJson } from "../lib/prisma-json";
 import { slugify } from "../lib/slug";
 import { analyzeSeo } from "../lib/seo";
 import { isDuplicate } from "../lib/duplicate";
@@ -59,6 +60,7 @@ async function main() {
           title: article.title, slug, meta: article.meta,
           keyword: article.keyword || null, category: article.category,
           content: article.content,
+          ...(article.aiExtras ? { aiExtras: asJson(article.aiExtras) } : {}),
           imageUrl,
           source: article.source, articleSource: "BOT",
           status: seo.score >= 50 ? "PUBLISHED" : "DRAFT",

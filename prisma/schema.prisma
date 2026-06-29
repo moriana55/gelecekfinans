@@ -34,6 +34,9 @@ model Article {
   premium       Boolean        @default(false)
   duplicateOf   String?
   seoScore      Int?
+  // AI üretimi okuyucu yardımcıları: { summary: string[], impact: string, faq: {q,a}[] }.
+  // Eski makalelerde null kalır; sayfa null'da kutuyu/FAQ schema'yı gizler (graceful).
+  aiExtras      Json?
   publishedAt   DateTime?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt

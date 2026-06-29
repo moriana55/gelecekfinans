@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { asJson } from "@/lib/prisma-json";
 import { slugify } from "@/lib/slug";
 import { analyzeSeo } from "@/lib/seo";
 import { isDuplicate } from "@/lib/duplicate";
@@ -95,6 +96,7 @@ export async function POST(req: NextRequest) {
           keyword: article.keyword || null,
           category: article.category,
           content: article.content,
+          ...(article.aiExtras ? { aiExtras: asJson(article.aiExtras) } : {}),
           imageUrl,
           source: article.source,
           articleSource: "BOT",

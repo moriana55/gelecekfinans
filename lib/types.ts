@@ -1,3 +1,18 @@
+export interface ArticleFaq {
+  q: string;
+  a: string;
+}
+
+/**
+ * Bot tarafından makaleyle birlikte üretilen okuyucu yardımcıları.
+ * Tümü opsiyonel — eski makalelerde yokturlar, sayfa graceful gizler.
+ */
+export interface ArticleExtras {
+  summary?: string[];      // 3 maddelik TL;DR
+  impact?: string;         // "Senin için ne demek?" (1-2 cümle)
+  faq?: ArticleFaq[];      // 3 soru-cevap (FAQPage JSON-LD'ye de basılır)
+}
+
 export interface Article {
   title: string; meta: string; keyword: string; category: string;
   content: string; image_path: string | null; source: string;
@@ -6,4 +21,5 @@ export interface Article {
   views?: number;
   updatedAt?: string;
   premium?: boolean;
+  aiExtras?: ArticleExtras | null;
 }

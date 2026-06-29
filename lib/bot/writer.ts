@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { CATEGORY_PROMPTS, ARTICLE_WORDS, ARTICLE_MIN_WORDS } from "./config";
 import type { Topic } from "./topics";
+import type { ArticleExtras, ArticleFaq } from "@/lib/types";
 import { XMLParser } from "fast-xml-parser";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -108,7 +109,6 @@ SEO KURALLARI:
   (ortalama her 40-50 kelimede en fazla 1 kez). Aynı kelimeyi tekrarlamak yerine eş anlamlı,
   zamir ("o", "bu gelişme", "söz konusu karar") ve farklı ifadelerle çeşitlendir.
 - Makale içine madde listesi ekle
-- Sonuna 2 soruluk FAQ ekle (## Sıkça Sorulan Sorular)
 
 DIŞ LİNK (ZORUNLU — en az 1 tane):
 - Gerçek URL kullan, placeholder YAZMA. Örnekler:
@@ -126,10 +126,18 @@ YASAKLAR:
 - Kaynak metni kopyalama, özgün yaz
 - Sonuna disclaimer ekle
 
-Format:
+OKUYUCU YARDIMCILARI (makaleyle birlikte üret — KISA ve NET):
+- OZET: Haberin en önemli 3 noktası, dikey çubuk (|) ile ayrılmış TEK satır. Her madde 1 cümle.
+- ETKI: "Senin için ne demek?" — bu haber dolar/euro/altın/kripto/mevduat tutan SIRADAN bir okuyucuyu somut olarak nasıl etkiler? 1-2 cümle, sade dil. Haber piyasayla DOĞRUDAN ilgili değilse aynen şunu yaz: "Bu haberin döviz, altın veya kripto varlıklarınıza doğrudan etkisi bulunmuyor."
+- SSS: Tam 3 soru-cevap. Format: S: soru || C: cevap, çiftler ;; ile ayrılır. Cevaplar 1-2 cümle, yatırım tavsiyesi içermez.
+
+Format (HER etiket TEK satırdır; ICERIK her zaman EN SONDA gelir):
 BASLIK: ...
 META: ...
 KEYWORD: ...
+OZET: birinci nokta | ikinci nokta | üçüncü nokta
+ETKI: ...
+SSS: S: birinci soru || C: birinci cevap ;; S: ikinci soru || C: ikinci cevap ;; S: üçüncü soru || C: üçüncü cevap
 ICERIK:
 [makale buraya]`;
 }
@@ -177,21 +185,64 @@ function inline(text: string): string {
     .replace(/\*(.+?)\*/g, "<em>$1</em>");
 }
 
+/**
+ * LLM çıktısındaki OZET/ETKI/SSS satırlarını yapılandırılmış `ArticleExtras`'a
+ * dönüştürür. Model formata uymazsa alanlar boş kalır; hiçbiri yoksa null döner
+ * (sayfa kutuyu/FAQ schema'yı graceful gizler). Plain metin — HTML basılmaz,
+ * render/JSON-LD tarafında ayrıca kaçışlanır.
+ */
+function parseExtras(summaryRaw: string, impactRaw: string, faqRaw: string): ArticleExtras | null {
+  const summary = summaryRaw
+    ? summaryRaw.split("|").map((s) => s.trim()).filter(Boolean).slice(0, 5)
+    : [];
+
+  const impact = impactRaw.trim();
+
+  const faq: ArticleFaq[] = faqRaw
+    ? faqRaw
+        .split(";;")
+        .map((chunk) => {
+          const [qPart, aPart] = chunk.split("||");
+          const q = (qPart || "").replace(/^\s*S\s*:\s*/i, "").trim();
+          const a = (aPart || "").replace(/^\s*C\s*:\s*/i, "").trim();
+          return q && a ? { q, a } : null;
+        })
+        .filter((x): x is ArticleFaq => x !== null)
+        .slice(0, 6)
+    : [];
+
+  if (summary.length === 0 && !impact && faq.length === 0) return null;
+  return {
+    ...(summary.length ? { summary } : {}),
+    ...(impact ? { impact } : {}),
+    ...(faq.length ? { faq } : {}),
+  };
+}
+
 function parseResponse(raw: string, topic: Topic) {
   const lines = raw.split("\n");
   let title = topic.title;
   let meta = "";
   let keyword = "";
+  let summaryRaw = "";
+  let impactRaw = "";
+  let faqRaw = "";
   const contentLines: string[] = [];
   let inContent = false;
 
   for (const line of lines) {
-    if (line.startsWith("BASLIK:")) {
+    if (!inContent && line.startsWith("BASLIK:")) {
       title = line.replace("BASLIK:", "").trim();
-    } else if (line.startsWith("META:")) {
+    } else if (!inContent && line.startsWith("META:")) {
       meta = line.replace("META:", "").trim();
-    } else if (line.startsWith("KEYWORD:")) {
+    } else if (!inContent && line.startsWith("KEYWORD:")) {
       keyword = line.replace("KEYWORD:", "").trim();
+    } else if (!inContent && line.startsWith("OZET:")) {
+      summaryRaw = line.replace("OZET:", "").trim();
+    } else if (!inContent && line.startsWith("ETKI:")) {
+      impactRaw = line.replace("ETKI:", "").trim();
+    } else if (!inContent && line.startsWith("SSS:")) {
+      faqRaw = line.replace("SSS:", "").trim();
     } else if (line.startsWith("ICERIK:")) {
       inContent = true;
     } else if (inContent) {
@@ -200,8 +251,9 @@ function parseResponse(raw: string, topic: Topic) {
   }
 
   const content = mdToHtml(contentLines.join("\n").trim());
+  const aiExtras = parseExtras(summaryRaw, impactRaw, faqRaw);
 
-  return { title, meta, keyword, content, category: topic.category, source: topic.source };
+  return { title, meta, keyword, content, aiExtras, category: topic.category, source: topic.source };
 }
 
 export async function writeArticle(
@@ -210,6 +262,7 @@ export async function writeArticle(
   maxRetries = 3
 ): Promise<{
   title: string; meta: string; keyword: string; content: string;
+  aiExtras: ArticleExtras | null;
   category: string; source: string; wordCount: number;
 }> {
   const catExtra = CATEGORY_PROMPTS[topic.category]?.system_extra || "";

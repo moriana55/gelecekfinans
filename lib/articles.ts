@@ -1,8 +1,47 @@
 import { cache } from "react";
 import { prisma } from "./db";
-import type { Article } from "./types";
+import type { Article, ArticleExtras, ArticleFaq } from "./types";
 
 export type { Article } from "./types";
+
+/**
+ * DB'den gelen `aiExtras` JSON değerini güvenle `ArticleExtras`'a dönüştürür.
+ * LLM/DB kaynaklı olduğu için biçimi doğrular; geçersiz/eksikse null döner,
+ * böylece sayfa kutuyu ve FAQ schema'yı gösterMEZ (graceful).
+ */
+export function coerceExtras(value: unknown): ArticleExtras | null {
+  if (!value || typeof value !== "object") return null;
+  const v = value as Record<string, unknown>;
+
+  const summary = Array.isArray(v.summary)
+    ? v.summary.filter((s): s is string => typeof s === "string" && s.trim().length > 0).slice(0, 5)
+    : [];
+
+  const impact = typeof v.impact === "string" ? v.impact.trim() : "";
+
+  const faq: ArticleFaq[] = Array.isArray(v.faq)
+    ? v.faq
+        .map((f) => {
+          if (!f || typeof f !== "object") return null;
+          const q = (f as Record<string, unknown>).q;
+          const a = (f as Record<string, unknown>).a;
+          if (typeof q !== "string" || typeof a !== "string") return null;
+          const qt = q.trim();
+          const at = a.trim();
+          if (!qt || !at) return null;
+          return { q: qt, a: at };
+        })
+        .filter((x): x is ArticleFaq => x !== null)
+        .slice(0, 6)
+    : [];
+
+  if (summary.length === 0 && !impact && faq.length === 0) return null;
+  return {
+    ...(summary.length ? { summary } : {}),
+    ...(impact ? { impact } : {}),
+    ...(faq.length ? { faq } : {}),
+  };
+}
 
 /**
  * `premium` kolonu henüz veritabanına eklenmemiş olabilir (owner `prisma db push`
@@ -11,19 +50,20 @@ export type { Article } from "./types";
  * tespit eder; öyleyse sorguyu `premium` olmadan tekrar deneriz (premium:false).
  * Kolon mevcutsa davranış hiç değişmez.
  */
-function isMissingPremiumColumn(err: unknown): boolean {
+function isMissingOptionalColumn(err: unknown): boolean {
   const msg =
     err && typeof err === "object" && "message" in err
       ? String((err as { message?: unknown }).message ?? "")
       : String(err);
-  // Prisma P2022 (column does not exist) veya genel "premium" sütun hatası.
+  // Prisma P2022 (column does not exist) veya `premium`/`aiExtras` sütun hatası.
+  // Owner `prisma db push` çalıştırana kadar bu opsiyonel kolonlar yok olabilir.
   const code =
     err && typeof err === "object" && "code" in err
       ? String((err as { code?: unknown }).code ?? "")
       : "";
   return (
     code === "P2022" ||
-    (/premium/i.test(msg) &&
+    (/premium|aiextras/i.test(msg) &&
       /(column|does not exist|undefined column|no such column|unknown column)/i.test(
         msg
       ))
@@ -59,9 +99,9 @@ export const getAllArticles = cache(async function getAllArticles(
   try {
     rows = await prisma.article.findMany(baseQuery);
   } catch (err) {
-    if (!isMissingPremiumColumn(err)) {
-      // `premium` ile ilgisiz gerçek bir hata: sayfayı çökertmek yerine
-      // degrade ederek boş liste döndür (homepage temiz boş durum gösterir).
+    if (!isMissingOptionalColumn(err)) {
+      // `premium`/`aiExtras` ile ilgisiz gerçek bir hata: sayfayı çökertmek
+      // yerine degrade ederek boş liste döndür (homepage temiz boş durum gösterir).
       console.error("[getAllArticles] sorgu başarısız:", err);
       return [];
     }
@@ -135,16 +175,17 @@ export const getArticleBySlug = cache(async function getArticleBySlug(
         imageUrl: string | null;
         updatedAt: Date;
         premium?: boolean;
+        aiExtras?: unknown;
       }
     | null;
   try {
     r = await prisma.article.findFirst(baseQuery);
   } catch (err) {
-    if (!isMissingPremiumColumn(err)) {
+    if (!isMissingOptionalColumn(err)) {
       console.error("[getArticleBySlug] sorgu başarısız:", err);
       return null;
     }
-    // `premium` kolonu yok: kolonu hariç tutarak yeniden dene.
+    // `premium`/`aiExtras` kolonu yok: opsiyonel kolonları hariç tutarak yeniden dene.
     r = await prisma.article.findFirst({
       ...baseQuery,
       select: {
@@ -179,6 +220,8 @@ export const getArticleBySlug = cache(async function getArticleBySlug(
     updatedAt: r.updatedAt.toISOString(),
     // Kolon yokken `premium` undefined gelir; default(false) semantiğiyle uyumlu.
     premium: r.premium ?? false,
+    // Kolon yoksa / değer geçersizse coerceExtras null döner → kutu gizlenir.
+    aiExtras: coerceExtras(r.aiExtras),
   };
 });
 

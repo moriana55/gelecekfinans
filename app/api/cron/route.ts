@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { asJson } from "@/lib/prisma-json";
 import { slugify } from "@/lib/slug";
 import { analyzeSeo } from "@/lib/seo";
 import { isDuplicate } from "@/lib/duplicate";
@@ -70,6 +71,7 @@ export async function GET(req: NextRequest) {
           title: article.title, slug, meta: article.meta,
           keyword: article.keyword || null, category: article.category,
           content: article.content,
+          ...(article.aiExtras ? { aiExtras: asJson(article.aiExtras) } : {}),
           imageUrl,
           source: article.source, articleSource: "BOT",
           status: "DRAFT", // Bot makaleleri DRAFT gelir; owner görsel ekleyip elle yayınlar
