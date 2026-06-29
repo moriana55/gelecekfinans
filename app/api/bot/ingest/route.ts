@@ -8,8 +8,10 @@ import { getArticleImage } from "@/lib/bot/images";
 export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
+  const secret = process.env.BOT_SECRET;
   const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.BOT_SECRET}`) {
+  // Secret yapılandırılmamışsa "Bearer undefined" ile bypass'ı önle (fail-closed).
+  if (!secret || authHeader !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
