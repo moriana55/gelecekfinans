@@ -20,6 +20,8 @@ export default function CryptoTicker(){
             :c.current_price.toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:4});
           return(
             <div key={i} className="ticker-item">
+              {/* 14px canlı ticker ikonlarında optimizer isteği görselden daha pahalıdır. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={c.image} alt={`${c.symbol} logosu`} loading="lazy" width={14} height={14} style={{width:14,height:14,borderRadius:"50%"}}/>
               <span className="t-sym">{c.symbol}</span>
               <span className="t-price">₺{price}</span>

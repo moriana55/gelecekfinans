@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface Article { title: string; meta: string; category: string; slug: string; image_path: string | null; }
 
@@ -89,7 +90,7 @@ export default function Search() {
             return (
               <div key={a.slug} className={`search-result${i === idx ? " active" : ""}`} onClick={() => go(a.slug)}>
                 {imgUrl
-                  ? <img src={imgUrl} alt={a.title} loading="lazy" className="search-result-img" />
+                  ? <Image src={imgUrl} alt={a.title} width={56} height={42} className="search-result-img" />
                   : <div className="search-result-img" style={{ borderRadius: 6 }} />
                 }
                 <div style={{ flex: 1, minWidth: 0 }}>
